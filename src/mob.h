@@ -11,7 +11,7 @@ class Enemy : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
 
 public:
-    Enemy(Player* player, QGraphicsItem* parent = nullptr);
+    Enemy(Player* player, int tileSize, QGraphicsItem* parent = nullptr);
 
     private slots:
         void moveTowardPlayer();

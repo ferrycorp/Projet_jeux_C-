@@ -3,27 +3,20 @@
 #include <QRandomGenerator>
 #include <QtMath>
 
-Enemy::Enemy(Player* player, QGraphicsItem* parent)
+Enemy::Enemy(Player* player, int tileSize, QGraphicsItem* parent)
     : QGraphicsPixmapItem(parent), targetPlayer(player) {
 
-    // Sprite ou image de base
     setPixmap(QPixmap("../images/enemy.jpg").scaled(32, 32));
-
-    // Vitesse de déplacement
     speed = 1;
 
-    // Position aléatoire dans les limites de la scène
-    if (scene()) {
-        QRectF sceneRect = scene()->sceneRect();
-        qreal x = QRandomGenerator::global()->bounded(sceneRect.width());
-        qreal y = QRandomGenerator::global()->bounded(sceneRect.height());
-        setPos(x, y);
-    }
+    // Position aléatoire entre 0 et 10 tuiles
+    int tileX = QRandomGenerator::global()->bounded(11); // 0 à 10 inclus
+    int tileY = QRandomGenerator::global()->bounded(11);
+    setPos(tileX * tileSize, tileY * tileSize);
 
-    // Timer de mouvement
     moveTimer = new QTimer(this);
     connect(moveTimer, &QTimer::timeout, this, &Enemy::moveTowardPlayer);
-    moveTimer->start(100);  // toutes les 100ms
+    moveTimer->start(100);
 }
 
 void Enemy::moveTowardPlayer() {
