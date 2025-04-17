@@ -11,6 +11,10 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     int tileSize = 32;
     player->setPos(1 * tileSize, 1 * tileSize);; // Position initiale
 
+    // Test mob
+    Enemy* enemy = new Enemy(player);
+    addItem(enemy);
+
     // Timer principal pour la boucle de jeu
     gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, &MyScene::updateGame);

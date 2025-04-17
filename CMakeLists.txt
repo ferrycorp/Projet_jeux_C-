@@ -12,6 +12,8 @@ file (GLOB_RECURSE sourceCode src/*.cpp src/*.h)
 qt_standard_project_setup()
 
 add_executable(NOMDEVOTREPROJET ${sourceCode}
-        src/player.cpp)
+        src/player.cpp
+        src/mob.cpp
+)
 
 target_link_libraries(NOMDEVOTREPROJET PRIVATE Qt6::Widgets)

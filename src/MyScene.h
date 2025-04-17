@@ -4,6 +4,7 @@
 #include <QGraphicsScene>
 #include <QTimer>
 #include "Player.h"
+#include "mob.h"
 
 class MyScene : public QGraphicsScene {
 Q_OBJECT
@@ -18,6 +19,7 @@ private slots:
 private:
     void loadMap();
     Player* player;
+    Enemy* enemy;
     QTimer* gameTimer;
 
 };
