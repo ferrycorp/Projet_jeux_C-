@@ -7,6 +7,9 @@
 #include "projectile.h"
 #include <QTimer>
 #include <QVector>
+#include "Weapon.h"
+#include "bat.h"
+#include "Gun.h"
 
 enum Direction {
     Up,
@@ -20,7 +23,26 @@ Q_OBJECT
 
 public:
     Player(QGraphicsItem *parent = nullptr);
+
+    Direction getDirection() const { return direction; }
+
     void shoot(int tileSize);
+
+    int getHp() const { return hp; }
+    void takeDamage(int amount);
+    void setStep(float newStep) { step = newStep; }
+
+
+    void startLavaDamage();
+    void stopLavaDamage();
+
+    void initWeaponInventory();
+    void setWeapon(Weapon* weapon);
+    void switchWeapon(int index);
+    QString getCurrentWeaponName() const;
+
+    const QMap<int,Weapon*>& getInventory() const { return weaponInventory; }
+
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -31,10 +53,12 @@ private slots:
     void nextFrame();
 
 private:
+    int hp =100;
+
     QVector<QPixmap> walkFrames;
     int currentFrame;
-    QTimer *animationTimer;
-    int step;
+    QTimer* animationTimer;
+    float step;
     qreal rotationAngle;// 0 = bas, 90 = gauche, etc.
     bool moving = false;
     bool keyUp = false;
@@ -45,7 +69,24 @@ private:
     bool canShoot = true;
     QTimer* shootCooldownTimer;
 
-    signals:
+    QTimer* lavaDamageTimer = nullptr;
+    QTimer* iceTimer = nullptr;
+    QTimer* damageFlashTimer = nullptr;
+    void flashRed();
+    void loadWalkAnimation();
+    void setupAnimationTimer();
+    void setupShootCooldownTimer();
+    void setupLavaDamageTimer();
+    void setupDamageFlashTimer();
+
+    QMap<int, Weapon*> weaponInventory;
+    Weapon* currentWeapon = nullptr;
+
+
+
+
+
+signals:
     void gameOver();
 };
 

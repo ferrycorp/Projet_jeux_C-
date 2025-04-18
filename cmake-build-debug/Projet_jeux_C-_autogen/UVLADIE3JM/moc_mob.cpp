@@ -1,5 +1,5 @@
 /****************************************************************************
-** Meta object code from reading C++ file 'player.h'
+** Meta object code from reading C++ file 'mob.h'
 **
 ** Created by: The Qt Meta Object Compiler version 68 (Qt 6.4.2)
 **
@@ -7,10 +7,10 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../../../src/player.h"
+#include "../../../src/mob.h"
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
-#error "The header file 'player.h' doesn't include <QObject>."
+#error "The header file 'mob.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 68
 #error "This file was generated using the moc from 6.4.2. It"
 #error "cannot be used with the include files from this version of Qt."
@@ -25,31 +25,31 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 namespace {
-struct qt_meta_stringdata_Player_t {
+struct qt_meta_stringdata_Enemy_t {
     uint offsetsAndSizes[8];
-    char stringdata0[7];
-    char stringdata1[9];
+    char stringdata0[6];
+    char stringdata1[17];
     char stringdata2[1];
-    char stringdata3[10];
+    char stringdata3[25];
 };
 #define QT_MOC_LITERAL(ofs, len) \
-    uint(sizeof(qt_meta_stringdata_Player_t::offsetsAndSizes) + ofs), len 
-Q_CONSTINIT static const qt_meta_stringdata_Player_t qt_meta_stringdata_Player = {
+    uint(sizeof(qt_meta_stringdata_Enemy_t::offsetsAndSizes) + ofs), len 
+Q_CONSTINIT static const qt_meta_stringdata_Enemy_t qt_meta_stringdata_Enemy = {
     {
-        QT_MOC_LITERAL(0, 6),  // "Player"
-        QT_MOC_LITERAL(7, 8),  // "gameOver"
-        QT_MOC_LITERAL(16, 0),  // ""
-        QT_MOC_LITERAL(17, 9)   // "nextFrame"
+        QT_MOC_LITERAL(0, 5),  // "Enemy"
+        QT_MOC_LITERAL(6, 16),  // "moveTowardPlayer"
+        QT_MOC_LITERAL(23, 0),  // ""
+        QT_MOC_LITERAL(24, 24)   // "checkCollisionWithPlayer"
     },
-    "Player",
-    "gameOver",
+    "Enemy",
+    "moveTowardPlayer",
     "",
-    "nextFrame"
+    "checkCollisionWithPlayer"
 };
 #undef QT_MOC_LITERAL
 } // unnamed namespace
 
-Q_CONSTINIT static const uint qt_meta_data_Player[] = {
+Q_CONSTINIT static const uint qt_meta_data_Enemy[] = {
 
  // content:
       10,       // revision
@@ -60,79 +60,66 @@ Q_CONSTINIT static const uint qt_meta_data_Player[] = {
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       1,       // signalCount
-
- // signals: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,   26,    2, 0x06,    1 /* Public */,
+       0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   26,    2, 0x08,    1 /* Private */,
        3,    0,   27,    2, 0x08,    2 /* Private */,
 
- // signals: parameters
-    QMetaType::Void,
-
  // slots: parameters
+    QMetaType::Void,
     QMetaType::Void,
 
        0        // eod
 };
 
-Q_CONSTINIT const QMetaObject Player::staticMetaObject = { {
+Q_CONSTINIT const QMetaObject Enemy::staticMetaObject = { {
     QMetaObject::SuperData::link<QObject::staticMetaObject>(),
-    qt_meta_stringdata_Player.offsetsAndSizes,
-    qt_meta_data_Player,
+    qt_meta_stringdata_Enemy.offsetsAndSizes,
+    qt_meta_data_Enemy,
     qt_static_metacall,
     nullptr,
-    qt_incomplete_metaTypeArray<qt_meta_stringdata_Player_t,
+    qt_incomplete_metaTypeArray<qt_meta_stringdata_Enemy_t,
         // Q_OBJECT / Q_GADGET
-        QtPrivate::TypeAndForceComplete<Player, std::true_type>,
-        // method 'gameOver'
+        QtPrivate::TypeAndForceComplete<Enemy, std::true_type>,
+        // method 'moveTowardPlayer'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'nextFrame'
+        // method 'checkCollisionWithPlayer'
         QtPrivate::TypeAndForceComplete<void, std::false_type>
     >,
     nullptr
 } };
 
-void Player::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+void Enemy::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<Player *>(_o);
+        auto *_t = static_cast<Enemy *>(_o);
         (void)_t;
         switch (_id) {
-        case 0: _t->gameOver(); break;
-        case 1: _t->nextFrame(); break;
+        case 0: _t->moveTowardPlayer(); break;
+        case 1: _t->checkCollisionWithPlayer(); break;
         default: ;
-        }
-    } else if (_c == QMetaObject::IndexOfMethod) {
-        int *result = reinterpret_cast<int *>(_a[0]);
-        {
-            using _t = void (Player::*)();
-            if (_t _q_method = &Player::gameOver; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
-                *result = 0;
-                return;
-            }
         }
     }
     (void)_a;
 }
 
-const QMetaObject *Player::metaObject() const
+const QMetaObject *Enemy::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
 }
 
-void *Player::qt_metacast(const char *_clname)
+void *Enemy::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_Player.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_Enemy.stringdata0))
         return static_cast<void*>(this);
     if (!strcmp(_clname, "QGraphicsPixmapItem"))
         return static_cast< QGraphicsPixmapItem*>(this);
     return QObject::qt_metacast(_clname);
 }
 
-int Player::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int Enemy::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QObject::qt_metacall(_c, _id, _a);
     if (_id < 0)
@@ -147,12 +134,6 @@ int Player::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         _id -= 2;
     }
     return _id;
-}
-
-// SIGNAL 0
-void Player::gameOver()
-{
-    QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

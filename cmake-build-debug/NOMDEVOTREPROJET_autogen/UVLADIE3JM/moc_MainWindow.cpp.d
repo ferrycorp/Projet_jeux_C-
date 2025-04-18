@@ -1,7 +1,10 @@
-/mnt/c/Users/mgicq/OneDrive/Bureau/Isen/2eme\ Année/infos/C++/CPP_QT_TPminiprojet/cmake-build-debug/NOMDEVOTREPROJET_autogen/UVLADIE3JM/moc_MainWindow.cpp: /mnt/c/Users/mgicq/OneDrive/Bureau/Isen/2eme\ Année/infos/C++/CPP_QT_TPminiprojet/src/MainWindow.h \
-  /mnt/c/Users/mgicq/OneDrive/Bureau/Isen/2eme\ Année/infos/C++/CPP_QT_TPminiprojet/cmake-build-debug/NOMDEVOTREPROJET_autogen/moc_predefs.h \
-  /mnt/c/Users/mgicq/OneDrive/Bureau/Isen/2eme\ Année/infos/C++/CPP_QT_TPminiprojet/src/MyScene.h \
-  /mnt/c/Users/mgicq/OneDrive/Bureau/Isen/2eme\ Année/infos/C++/CPP_QT_TPminiprojet/src/Player.h \
+/mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/cmake-build-debug/NOMDEVOTREPROJET_autogen/UVLADIE3JM/moc_MainWindow.cpp: /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/MainWindow.h \
+  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/cmake-build-debug/NOMDEVOTREPROJET_autogen/moc_predefs.h \
+  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/MyScene.h \
+  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/Player.h \
+  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/mob.h \
+  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/player.h \
+  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/projectile.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
@@ -282,6 +285,7 @@
   /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
+  /usr/include/x86_64-linux-gnu/qt6/QtCore/QDebug \
   /usr/include/x86_64-linux-gnu/qt6/QtCore/QList \
   /usr/include/x86_64-linux-gnu/qt6/QtCore/QObject \
   /usr/include/x86_64-linux-gnu/qt6/QtCore/QRect \

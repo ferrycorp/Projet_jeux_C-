@@ -1,32 +1,48 @@
 #include "MainWindow.h"
+#include "Player.h"
+#include <QKeyEvent>
+#include <QMessageBox>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent)
+        : QMainWindow(parent)
 {
+    // Création de la scène
+    mainScene = new MyScene;
 
-    this->mainScene = new MyScene;
+    // Création de la vue
+    mainView = new QGraphicsView;
+    mainView->setScene(mainScene);
+    mainView->setFocus();
 
-    this->mainView = new QGraphicsView;
-    this->mainView->setScene(mainScene);
-    this->mainView->setFocus();
+    QShortcut* inventoryShortcut = new QShortcut(QKeySequence(Qt::Key_I), this);
+    connect(inventoryShortcut, &QShortcut::activated, this, [this]() {
+        inventory->show();
+    });
 
-    this->setCentralWidget(mainView);
-    this->setWindowTitle("My main window");
-    this->resize(400, 800);
+    // Fenêtre principale
+    setCentralWidget(mainView);
+    setWindowTitle("My main window");
+    resize(400, 800);
 
+    // Menu d'aide
     helpMenu = menuBar()->addMenu(tr("&Help"));
     QAction* actionHelp = new QAction(tr("&About"), this);
-    connect(actionHelp, SIGNAL(triggered()), this, SLOT(slot_aboutMenu()));
+    connect(actionHelp, &QAction::triggered, this, &MainWindow::slot_aboutMenu);
     helpMenu->addAction(actionHelp);
 
+    // 🔄 Création de la fenêtre d'inventaire
+    Player* player = mainScene->getPlayer();
+    inventory = new Inventory(player->getInventory(), this); // ← renommé ici
+    connect(inventory, &Inventory::weaponSelected, player, &Player::switchWeapon);
 }
 
-MainWindow::~MainWindow(){
-
+MainWindow::~MainWindow() {
+    // Qt gère la mémoire, pas besoin de delete
 }
 
-void MainWindow::slot_aboutMenu(){
+void MainWindow::slot_aboutMenu() {
     QMessageBox msgBox;
-    msgBox.setText("A small QT/C++ projet...");
-    msgBox.setModal(true); // on souhaite que la fenetre soit modale i.e qu'on ne puisse plus cliquer ailleurs
+    msgBox.setText("A small QT/C++ project...");
+    msgBox.setModal(true);
     msgBox.exec();
 }

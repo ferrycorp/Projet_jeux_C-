@@ -9,7 +9,7 @@ Enemy::Enemy(Player* player, int tileSize, QGraphicsItem* parent)
     : QGraphicsPixmapItem(parent), targetPlayer(player) {
 
 
-    setPixmap(QPixmap("../images/enemy.jpg").scaled(32, 32));
+    setPixmap(QPixmap("../images/enemy.png").scaled(32, 32));
     speed = 1;
 
     // Position aléatoire entre 0 et 10 tuiles

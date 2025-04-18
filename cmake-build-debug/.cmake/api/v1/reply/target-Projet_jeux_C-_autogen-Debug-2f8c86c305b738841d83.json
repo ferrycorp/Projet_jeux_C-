@@ -14,9 +14,9 @@
 			}
 		]
 	},
-	"id" : "NOMDEVOTREPROJET_autogen::@6890427a1f51a3e7e1df",
+	"id" : "Projet_jeux_C-_autogen::@6890427a1f51a3e7e1df",
 	"isGeneratorProvided" : true,
-	"name" : "NOMDEVOTREPROJET_autogen",
+	"name" : "Projet_jeux_C-_autogen",
 	"paths" : 
 	{
 		"build" : ".",
@@ -44,13 +44,13 @@
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "cmake-build-debug/CMakeFiles/NOMDEVOTREPROJET_autogen",
+			"path" : "cmake-build-debug/CMakeFiles/Projet_jeux_C-_autogen",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "cmake-build-debug/CMakeFiles/NOMDEVOTREPROJET_autogen.rule",
+			"path" : "cmake-build-debug/CMakeFiles/Projet_jeux_C-_autogen.rule",
 			"sourceGroupIndex" : 1
 		}
 	],

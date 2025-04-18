@@ -1,31 +1,37 @@
-#ifndef CPP_QT_TPMINIPROJET_MAINWINDOW_H
-#define CPP_QT_TPMINIPROJET_MAINWINDOW_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <QMainWindow>
 #include <QGraphicsView>
 #include <QMenu>
+#include "MyScene.h"
+#include "Inventory.h"
 #include <QMenuBar>
 #include <QAction>
 #include <QMessageBox>
-
-#include "MyScene.h"
+#include "player.h"
+#include <QKeyEvent>
+#include <QShortcut>
+#include <QKeySequence>
 
 class MainWindow : public QMainWindow {
-    Q_OBJECT
-
-private :
-    MyScene* mainScene;
-    QGraphicsView* mainView;
-    QMenu* helpMenu;
-
+Q_OBJECT
 
 public:
-    MainWindow(QWidget* parent = nullptr);
-    virtual ~MainWindow();
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
 
-public slots:
+protected:
+
+
+private slots:
     void slot_aboutMenu();
+
+private:
+    QGraphicsView* mainView;
+    MyScene* mainScene;
+    QMenu* helpMenu;
+    Inventory* inventory = nullptr; // ← renommé ici
 };
 
-
-#endif //CPP_QT_TPMINIPROJET_MAINWINDOW_H
+#endif // MAINWINDOW_H

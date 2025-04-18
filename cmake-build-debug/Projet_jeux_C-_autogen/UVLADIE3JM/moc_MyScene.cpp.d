@@ -1,5 +1,8 @@
-/mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/cmake-build-debug/NOMDEVOTREPROJET_autogen/UVLADIE3JM/moc_player.cpp: /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/player.h \
-  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/cmake-build-debug/NOMDEVOTREPROJET_autogen/moc_predefs.h \
+/mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/cmake-build-debug/Projet_jeux_C-_autogen/UVLADIE3JM/moc_MyScene.cpp: /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/MyScene.h \
+  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/cmake-build-debug/Projet_jeux_C-_autogen/moc_predefs.h \
+  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/Player.h \
+  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/mob.h \
+  /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/player.h \
   /mnt/c/Users/mgicq/OneDrive/Documents/GitHub/Projet_jeux_C-/src/projectile.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
@@ -281,6 +284,7 @@
   /usr/include/x86_64-linux-gnu/c++/12/bits/os_defines.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
+  /usr/include/x86_64-linux-gnu/qt6/QtCore/QDebug \
   /usr/include/x86_64-linux-gnu/qt6/QtCore/QList \
   /usr/include/x86_64-linux-gnu/qt6/QtCore/QObject \
   /usr/include/x86_64-linux-gnu/qt6/QtCore/QRect \
@@ -381,14 +385,17 @@
   /usr/include/x86_64-linux-gnu/qt6/QtCore/qversiontagging.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/QKeyEvent \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/QTransform \
+  /usr/include/x86_64-linux-gnu/qt6/QtGui/qbrush.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qcolor.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qevent.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qeventpoint.h \
+  /usr/include/x86_64-linux-gnu/qt6/QtGui/qfont.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qimage.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qinputdevice.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qkeysequence.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qpaintdevice.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qpainterpath.h \
+  /usr/include/x86_64-linux-gnu/qt6/QtGui/qpen.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qpixelformat.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qpixmap.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qpointingdevice.h \
@@ -405,7 +412,9 @@
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qvectornd.h \
   /usr/include/x86_64-linux-gnu/qt6/QtGui/qwindowdefs.h \
   /usr/include/x86_64-linux-gnu/qt6/QtWidgets/QGraphicsPixmapItem \
+  /usr/include/x86_64-linux-gnu/qt6/QtWidgets/QGraphicsScene \
   /usr/include/x86_64-linux-gnu/qt6/QtWidgets/qgraphicsitem.h \
+  /usr/include/x86_64-linux-gnu/qt6/QtWidgets/qgraphicsscene.h \
   /usr/include/x86_64-linux-gnu/qt6/QtWidgets/qtwidgets-config.h \
   /usr/include/x86_64-linux-gnu/qt6/QtWidgets/qtwidgetsexports.h \
   /usr/include/x86_64-linux-gnu/qt6/QtWidgets/qtwidgetsglobal.h \

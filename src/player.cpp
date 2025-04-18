@@ -5,20 +5,39 @@
 Player::Player(QGraphicsItem* parent)
         : QGraphicsPixmapItem(parent), currentFrame(0) {
 
-    step = 2;
+    step = 3;
     rotationAngle = 0;
+
+    initWeaponInventory();
+    loadWalkAnimation();
+    setupAnimationTimer();
+    setupShootCooldownTimer();
+    setupLavaDamageTimer();
+    setupDamageFlashTimer();
+
+}
+void Player::loadWalkAnimation() {
     for (int i = 1; i <= 6; ++i) {
         walkFrames.append(QPixmap(QString("../images/perso_%1.png").arg(i)).scaled(32, 32));
     }
 
-    setPixmap(walkFrames[0]);
+    if (!walkFrames.isEmpty()) {
+        setPixmap(walkFrames[0]);
+    } else {
+        qDebug() << "Aucune frame chargée !";
+    }
+
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFocus();
+}
 
+void Player::setupAnimationTimer() {
     animationTimer = new QTimer(this);
     connect(animationTimer, &QTimer::timeout, this, &Player::nextFrame);
-    animationTimer->setInterval(150);
+    animationTimer->setInterval(100);
+}
 
+void Player::setupShootCooldownTimer() {
     shootCooldownTimer = new QTimer(this);
     shootCooldownTimer->setSingleShot(true);
 
@@ -26,6 +45,24 @@ Player::Player(QGraphicsItem* parent)
         canShoot = true;
     });
 }
+
+void Player::setupLavaDamageTimer() {
+    lavaDamageTimer = new QTimer(this);
+    lavaDamageTimer->setInterval(500); // 0.5 sec
+    connect(lavaDamageTimer, &QTimer::timeout, this, [this]() {
+        takeDamage(1);
+    });
+}
+
+void Player::setupDamageFlashTimer() {
+    damageFlashTimer = new QTimer(this);
+    damageFlashTimer->setSingleShot(true);
+
+    connect(damageFlashTimer, &QTimer::timeout, [this]() {
+        setPixmap(walkFrames[currentFrame]);
+    });
+}
+
 
 void Player::keyPressEvent(QKeyEvent* event) {
     QPointF nextPos = pos();
@@ -67,6 +104,13 @@ void Player::keyPressEvent(QKeyEvent* event) {
         case Qt::Key_Space:
             shoot(32);
             break;
+        case Qt::Key_1:
+            switchWeapon(1);
+            break;
+        case Qt::Key_2:
+            switchWeapon(2);
+            break;
+
     }
 
     if (moved && scene()) {
@@ -118,7 +162,6 @@ void Player::keyReleaseEvent(QKeyEvent* event) {
 }
 
 
-
 void Player::nextFrame() {
     currentFrame = (currentFrame + 1) % walkFrames.size();
 
@@ -153,3 +196,77 @@ void Player::shoot(int tileSize) {
         scene()->addItem(proj);
     }
 }
+
+void Player::takeDamage(int amount) {
+    hp -= amount;
+    qDebug() << "🔥 Le joueur prend" << amount << "dégâts. HP restant :" << hp;
+
+    flashRed();
+    if (hp <= 0) {
+        emit gameOver(); // envoie un signal si tu veux arrêter le jeu
+        qDebug() << "💀 Le joueur est mort.";
+    }
+}
+
+void Player::startLavaDamage() {
+    if (!lavaDamageTimer->isActive()) {
+        lavaDamageTimer->start();
+    }
+}
+
+void Player::stopLavaDamage() {
+    if (lavaDamageTimer->isActive()) {
+        lavaDamageTimer->stop();
+    }
+}
+
+void Player::flashRed() {
+    QPixmap redFrame = walkFrames[currentFrame];
+
+    QImage img = redFrame.toImage();
+    for (int y = 0; y < img.height(); ++y) {
+        for (int x = 0; x < img.width(); ++x) {
+            QColor color = img.pixelColor(x, y);
+            if (color.alpha() > 0) {
+                color.setRed(255);
+                img.setPixelColor(x, y, color);
+            }
+        }
+    }
+
+    QPixmap redPixmap = QPixmap::fromImage(img);
+    setPixmap(redPixmap);
+
+    damageFlashTimer->start(150);  // clignote pendant 150 ms
+}
+
+void Player::setWeapon(Weapon* weapon) {
+    currentWeapon = weapon;
+}
+
+void Player::switchWeapon(int index) {
+    if (weaponInventory.contains(index)) {
+        setWeapon(weaponInventory[index]);
+        qDebug() << "🔄 Arme sélectionnée :" << currentWeapon->getName();
+    }
+}
+
+QString Player::getCurrentWeaponName() const {
+    return currentWeapon ? currentWeapon->getName() : "Aucune";
+}
+
+void Player::initWeaponInventory() {
+    // Vider d’éventuelles armes précédentes
+    qDeleteAll(weaponInventory);
+    weaponInventory.clear();
+
+    // Ajout des armes au slot 1 et 2
+    weaponInventory.insert(1, new Gun());
+    weaponInventory.insert(2, new Bat());
+
+    // Arme par défaut : slot 1
+    setWeapon(weaponInventory.value(1));
+}
+
+
+
