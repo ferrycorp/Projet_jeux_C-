@@ -22,6 +22,8 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, &MyScene::updateGame);
     gameTimer->start(16); // 60 FPS (~16ms)
+
+    connect(player, &Player::gameOver, this, &MyScene::handleGameOver);
 }
 
 MyScene::~MyScene() {
@@ -80,4 +82,24 @@ void MyScene::loadMap() {
 
     // Redimensionne la scène à la taille totale de la map
     this->setSceneRect(0, 0, 10 * tileSize, 10 * tileSize);
+}
+
+void MyScene::handleGameOver() {
+    // Arrêter le jeu
+    gameTimer->stop();
+    spawnTimer->stop();
+
+    // Supprimer tous les ennemis et projectiles
+    for (QGraphicsItem* item : items()) {
+        if (dynamic_cast<Enemy*>(item) || dynamic_cast<Projectile*>(item)) {
+            removeItem(item);
+            delete item;
+        }
+    }
+
+    // Afficher le message de fin
+    QGraphicsTextItem* gameOverText = addText("Fin du jeu !");
+    gameOverText->setDefaultTextColor(Qt::red);
+    gameOverText->setFont(QFont("Arial", 24, QFont::Bold));
+    gameOverText->setPos(width() / 2 - 100, height() / 2 - 50);
 }

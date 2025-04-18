@@ -19,7 +19,12 @@ Player::Player(QGraphicsItem* parent)
     connect(animationTimer, &QTimer::timeout, this, &Player::nextFrame);
     animationTimer->setInterval(150);
 
+    shootCooldownTimer = new QTimer(this);
+    shootCooldownTimer->setSingleShot(true);
 
+    connect(shootCooldownTimer, &QTimer::timeout, [this]() {
+        canShoot = true;
+    });
 }
 
 void Player::keyPressEvent(QKeyEvent* event) {
@@ -33,6 +38,7 @@ void Player::keyPressEvent(QKeyEvent* event) {
             nextPos.rx() -= step;
             rotationAngle = 270;
             moved = true;
+            direction = Left;
             break;
         case Qt::Key_Right:
         case Qt::Key_D:
@@ -40,6 +46,7 @@ void Player::keyPressEvent(QKeyEvent* event) {
             nextPos.rx() += step;
             rotationAngle = 90;
             moved = true;
+            direction = Right;
             break;
         case Qt::Key_Up:
         case Qt::Key_Z:
@@ -47,6 +54,7 @@ void Player::keyPressEvent(QKeyEvent* event) {
             nextPos.ry() -= step;
             rotationAngle = 0;
             moved = true;
+            direction = Up;
             break;
         case Qt::Key_Down:
         case Qt::Key_S:
@@ -54,6 +62,10 @@ void Player::keyPressEvent(QKeyEvent* event) {
             nextPos.ry() += step;
             rotationAngle = 180;
             moved = true;
+            direction = Down;
+            break;
+        case Qt::Key_Space:
+            shoot(32);
             break;
     }
 
@@ -89,9 +101,6 @@ void Player::keyReleaseEvent(QKeyEvent* event) {
         case Qt::Key_S:
             keyDown = false;
             break;
-        case Qt::Key_Space:
-            shoot(32);
-            break;
     }
 
     // Si aucune touche n'est maintenue → arrêter animation
@@ -123,8 +132,23 @@ void Player::nextFrame() {
 }
 
 void Player::shoot(int tileSize) {
-    Projectile* proj = new Projectile(rotationAngle, tileSize);
-    proj->setPos(pos().x() + 16, pos().y() + 16); // Centrer le projectile sur le joueur
+    if (!canShoot)
+        return;
+
+    canShoot = false;
+    shootCooldownTimer->start(300); // 300 ms cooldown
+
+    qreal angle = 0;
+    switch (direction) {
+        case Up:    angle = 180; break;
+        case Down:  angle = 0;  break;
+        case Left:  angle = -90; break;
+        case Right: angle = 90;   break;
+    }
+
+    Projectile* proj = new Projectile(angle, tileSize);
+    proj->setPos(pos().x() + tileSize / 2, pos().y() + tileSize / 2);
+
     if (scene()) {
         scene()->addItem(proj);
     }

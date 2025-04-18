@@ -15,6 +15,7 @@ public:
 
     private slots:
         void moveTowardPlayer();
+        void checkCollisionWithPlayer();
 
 private:
     QTimer* moveTimer;

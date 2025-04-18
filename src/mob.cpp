@@ -39,4 +39,15 @@ void Enemy::moveTowardPlayer() {
 
         setPos(enemyPos.x() + dx, enemyPos.y() + dy);
     }
+
+    checkCollisionWithPlayer();
+}
+
+void Enemy::checkCollisionWithPlayer() {
+    if (!targetPlayer)
+        return;
+
+    if (collidesWithItem(targetPlayer)) {
+        emit targetPlayer->gameOver();
+    }
 }

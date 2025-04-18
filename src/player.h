@@ -8,6 +8,13 @@
 #include <QTimer>
 #include <QVector>
 
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right
+};
+
 class Player : public QObject, public QGraphicsPixmapItem {
 Q_OBJECT
 
@@ -34,6 +41,12 @@ private:
     bool keyDown = false;
     bool keyLeft = false;
     bool keyRight = false;
+    Direction direction = Down; // Par défaut vers le bas
+    bool canShoot = true;
+    QTimer* shootCooldownTimer;
+
+    signals:
+    void gameOver();
 };
 
 #endif // PLAYER_H

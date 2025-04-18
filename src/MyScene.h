@@ -16,6 +16,7 @@ public:
 
 private slots:
     void updateGame(); // appelée régulièrement
+    void handleGameOver();
 
 private:
     void loadMap();
