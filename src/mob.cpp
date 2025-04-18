@@ -2,9 +2,12 @@
 #include <QGraphicsScene>
 #include <QRandomGenerator>
 #include <QtMath>
+#include <QDebug>
+
 
 Enemy::Enemy(Player* player, int tileSize, QGraphicsItem* parent)
     : QGraphicsPixmapItem(parent), targetPlayer(player) {
+
 
     setPixmap(QPixmap("../images/enemy.jpg").scaled(32, 32));
     speed = 1;

@@ -89,6 +89,9 @@ void Player::keyReleaseEvent(QKeyEvent* event) {
         case Qt::Key_S:
             keyDown = false;
             break;
+        case Qt::Key_Space:
+            shoot(32);
+            break;
     }
 
     // Si aucune touche n'est maintenue → arrêter animation
@@ -119,3 +122,10 @@ void Player::nextFrame() {
     setPixmap(rotated);
 }
 
+void Player::shoot(int tileSize) {
+    Projectile* proj = new Projectile(rotationAngle, tileSize);
+    proj->setPos(pos().x() + 16, pos().y() + 16); // Centrer le projectile sur le joueur
+    if (scene()) {
+        scene()->addItem(proj);
+    }
+}

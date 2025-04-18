@@ -1,4 +1,5 @@
 #include "MyScene.h"
+#include <QDebug>
 
 MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     this->setSceneRect(0, 0, 400, 800);  // même taille que ta fenêtre
@@ -12,8 +13,10 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     player->setPos(1 * tileSize, 1 * tileSize);; // Position initiale
 
     // Test mob
-    Enemy* enemy = new Enemy(player, tileSize);
-    addItem(enemy);
+    for (int i = 0; i < 3; ++i) {
+        Enemy* enemy = new Enemy(player, tileSize);
+        addItem(enemy);
+    }
 
     // Timer principal pour la boucle de jeu
     gameTimer = new QTimer(this);
@@ -27,8 +30,15 @@ MyScene::~MyScene() {
 }
 
 void MyScene::updateGame() {
-    // Ici on pourra gérer le mouvement des ennemis, les tirs, les collisions, etc.
+    // Ici on pourra gérer les tirs, les collisions, etc.
+    static int frameCount = 0;
+    ++frameCount;
 
+    // toutes les 300 frames (~5 secondes à 60 FPS)
+    if (frameCount % 300 == 0) {
+        Enemy* enemy = new Enemy(player, tileSize);
+        addItem(enemy);
+    }
 }
 
 void MyScene::loadMap() {
@@ -71,4 +81,3 @@ void MyScene::loadMap() {
     // Redimensionne la scène à la taille totale de la map
     this->setSceneRect(0, 0, 10 * tileSize, 10 * tileSize);
 }
-

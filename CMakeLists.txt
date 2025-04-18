@@ -14,6 +14,7 @@ qt_standard_project_setup()
 add_executable(NOMDEVOTREPROJET ${sourceCode}
         src/player.cpp
         src/mob.cpp
+        src/projectile.cpp
 )
 
 target_link_libraries(NOMDEVOTREPROJET PRIVATE Qt6::Widgets)

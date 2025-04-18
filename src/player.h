@@ -4,6 +4,7 @@
 #include <QGraphicsPixmapItem>
 #include <QKeyEvent>
 #include <QObject>
+#include "projectile.h"
 #include <QTimer>
 #include <QVector>
 
@@ -12,6 +13,7 @@ Q_OBJECT
 
 public:
     Player(QGraphicsItem *parent = nullptr);
+    void shoot(int tileSize);
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

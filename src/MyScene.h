@@ -5,9 +5,10 @@
 #include <QTimer>
 #include "Player.h"
 #include "mob.h"
+#include <QDebug>
 
 class MyScene : public QGraphicsScene {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     MyScene(QObject* parent = nullptr);
@@ -21,6 +22,8 @@ private:
     Player* player;
     Enemy* enemy;
     QTimer* gameTimer;
+    QTimer* spawnTimer;
+    int tileSize;
 
 };
 
