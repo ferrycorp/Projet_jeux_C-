@@ -88,8 +88,8 @@ private:
 
 
 
-signals:
-    void gameOver();
+    signals:
+        void gameOver();
 };
 
 #endif // PLAYER_H

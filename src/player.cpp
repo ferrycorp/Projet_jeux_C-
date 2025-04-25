@@ -242,8 +242,7 @@ void Player::takeDamage(int amount) {
 
     flashRed();
     if (hp <= 0) {
-        emit gameOver(); // envoie un signal si tu veux arrêter le jeu
-        qDebug() << "💀 Le joueur est mort.";
+        emit gameOver();
     }
 }
 

@@ -50,7 +50,7 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     connect(gameTimer, &QTimer::timeout, this, &MyScene::updateGame);
     gameTimer->start(16); // 60 FPS (~16ms)
 
-    //connect(player, &Player::gameOver, this, &MyScene::handleGameOver);
+    connect(player, &Player::gameOver, this, &MyScene::handleGameOver);
 
 
     weaponText = new QGraphicsTextItem("Arme : " + player->getCurrentWeaponName());
@@ -230,6 +230,33 @@ void MyScene::checkEnvironmentEffects() {
 void MyScene::playerView() {
     if (view && player) {
         view->centerOn(player);  // 👀 centre la vue sur le joueur
+    }
+}
+
+void MyScene::resetGame() {
+    clear();
+
+    if (replayButton) {
+        replayButton->hide();
+        replayButton->deleteLater();
+        replayButton = nullptr;
+    }
+    if (quitButton) {
+        quitButton->hide();
+        quitButton->deleteLater();
+        quitButton = nullptr;
+    }
+
+    player = new Player();
+    addItem(player);
+    player->setPos(1 * tileSize, 1 * tileSize);
+    connect(player, &Player::gameOver, this, &MyScene::handleGameOver);
+
+    gameTimer->start();
+    spawnTimer->start();
+
+    for (int i = 0; i < 3; ++i) {
+        spawnEnemies();
     }
 }
 

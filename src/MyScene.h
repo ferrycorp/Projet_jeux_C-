@@ -4,6 +4,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QTimer>
+#include <QPushButton>
 #include "Player.h"
 #include "mob.h"
 #include <QDebug>
@@ -22,8 +23,11 @@ public:
 private slots:
     void updateGame(); // appelée régulièrement
     void handleGameOver();
+    void resetGame();
 
 private:
+    QPushButton* replayButton = nullptr;
+    QPushButton* quitButton = nullptr;
     Player* player;
     Enemy* enemy;
     QTimer* gameTimer;

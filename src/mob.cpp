@@ -13,8 +13,8 @@ Enemy::Enemy(Player* player, int tileSize, QGraphicsItem* parent)
     speed = 1;
 
     // Position aléatoire entre 0 et 10 tuiles
-    int tileX = QRandomGenerator::global()->bounded(11); // 0 à 10 inclus
-    int tileY = QRandomGenerator::global()->bounded(11);
+    int tileX = QRandomGenerator::global()->bounded(16);
+    int tileY = QRandomGenerator::global()->bounded(16);
     setPos(tileX * tileSize, tileY * tileSize);
 
     moveTimer = new QTimer(this);
@@ -48,6 +48,9 @@ void Enemy::checkCollisionWithPlayer() {
         return;
 
     if (collidesWithItem(targetPlayer)) {
-        emit targetPlayer->gameOver();
+        targetPlayer->takeDamage(10); // retire 10 points
+        // Facultatif : repositionne ou supprime l'ennemi après impact
+        scene()->removeItem(this);
+        deleteLater();
     }
 }
