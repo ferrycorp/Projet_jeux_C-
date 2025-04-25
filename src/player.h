@@ -49,8 +49,8 @@ protected:
     void keyReleaseEvent(QKeyEvent* event) override;
 
 private slots:
-
     void nextFrame();
+    void updateMovement();
 
 private:
     int hp =100;
@@ -67,11 +67,13 @@ private:
     bool keyRight = false;
     Direction direction = Down; // Par défaut vers le bas
     bool canShoot = true;
-    QTimer* shootCooldownTimer;
 
+    QTimer* shootCooldownTimer;
     QTimer* lavaDamageTimer = nullptr;
     QTimer* iceTimer = nullptr;
     QTimer* damageFlashTimer = nullptr;
+    QTimer* movementTimer = nullptr;
+
     void flashRed();
     void loadWalkAnimation();
     void setupAnimationTimer();

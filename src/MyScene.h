@@ -2,6 +2,7 @@
 #define CPP_QT_TPMINIPROJET_MYSCENE_H
 
 #include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QTimer>
 #include "Player.h"
 #include "mob.h"
@@ -17,7 +18,7 @@ public:
     MyScene(QObject* parent = nullptr);
     virtual ~MyScene();
     Player* getPlayer() const { return player; }
-
+    void setView(QGraphicsView* v) { view = v; }
 private slots:
     void updateGame(); // appelée régulièrement
     void handleGameOver();
@@ -34,12 +35,17 @@ private:
     void spawnEnemies();
     void updateHealthBar();
     void checkEnvironmentEffects();
+    void playerView();
 
     QGraphicsRectItem* healthBarBack = nullptr;
     QGraphicsRectItem* healthBarFront = nullptr;
     QGraphicsTextItem* healthText = nullptr;
 
     QGraphicsTextItem* weaponText = nullptr;
+    QGraphicsView* view = nullptr;
+
+
+
 
 
 

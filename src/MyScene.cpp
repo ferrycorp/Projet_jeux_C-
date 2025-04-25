@@ -39,11 +39,11 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
 
 
 
-    /* Test mob
+     //Test mob
     for (int i = 0; i < 3; ++i) {
         Enemy* enemy = new Enemy(player, tileSize);
         addItem(enemy);
-    }*/
+    }
 
     // Timer principal pour la boucle de jeu
     gameTimer = new QTimer(this);
@@ -72,8 +72,10 @@ void MyScene::updateGame() {
     spawnEnemies();
     updateHealthBar();
     checkEnvironmentEffects();
-
+    playerView();
     weaponText->setPlainText("Arme : " + player->getCurrentWeaponName());
+
+
 
 }
 
@@ -223,6 +225,12 @@ void MyScene::checkEnvironmentEffects() {
         player->stopLavaDamage();
 
     player->setStep(onIce ? 1 : 3);
+}
+
+void MyScene::playerView() {
+    if (view && player) {
+        view->centerOn(player);  // 👀 centre la vue sur le joueur
+    }
 }
 
 

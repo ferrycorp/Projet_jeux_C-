@@ -2,6 +2,7 @@
 #include "Player.h"
 #include <QKeyEvent>
 #include <QMessageBox>
+#include "MyScene.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent)
@@ -12,7 +13,10 @@ MainWindow::MainWindow(QWidget *parent)
     // Création de la vue
     mainView = new QGraphicsView;
     mainView->setScene(mainScene);
+    mainScene->setView(mainView);
     mainView->setFocus();
+    mainView->scale(4, 4);
+
 
     QShortcut* inventoryShortcut = new QShortcut(QKeySequence(Qt::Key_I), this);
     connect(inventoryShortcut, &QShortcut::activated, this, [this]() {

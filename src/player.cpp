@@ -4,6 +4,9 @@
 
 Player::Player(QGraphicsItem* parent)
         : QGraphicsPixmapItem(parent), currentFrame(0) {
+    movementTimer = new QTimer(this);
+    connect(movementTimer, &QTimer::timeout, this, &Player::updateMovement);
+    movementTimer->start(16); // ~60 fps
 
     step = 3;
     rotationAngle = 0;
@@ -34,7 +37,7 @@ void Player::loadWalkAnimation() {
 void Player::setupAnimationTimer() {
     animationTimer = new QTimer(this);
     connect(animationTimer, &QTimer::timeout, this, &Player::nextFrame);
-    animationTimer->setInterval(100);
+    animationTimer->setInterval(150);
 }
 
 void Player::setupShootCooldownTimer() {
@@ -126,6 +129,42 @@ void Player::keyPressEvent(QKeyEvent* event) {
         }
     }
 }
+
+void Player::updateMovement() {
+    if (!scene()) return;
+
+    QPointF delta(0, 0);
+
+    if (keyLeft)  { delta.rx() -= step; rotationAngle = 270; direction = Left; }
+    if (keyRight) { delta.rx() += step; rotationAngle = 90;  direction = Right; }
+    if (keyUp)    { delta.ry() -= step; rotationAngle = 0;   direction = Up; }
+    if (keyDown)  { delta.ry() += step; rotationAngle = 180; direction = Down; }
+
+    if (delta != QPointF(0, 0)) {
+        QPointF nextPos = pos() + delta;
+
+        QRectF bounds = scene()->sceneRect();
+        if (bounds.contains(QRectF(nextPos, boundingRect().size()))) {
+            setPos(nextPos);
+        }
+
+        if (!moving) {
+            animationTimer->start();
+            moving = true;
+        }
+    } else if (moving) {
+        animationTimer->stop();
+        moving = false;
+        currentFrame = 0;
+
+        QPixmap base = walkFrames[0];
+        QTransform transform;
+        transform.rotate(rotationAngle);
+        QPixmap rotated = base.transformed(transform, Qt::SmoothTransformation);
+        setPixmap(rotated);
+    }
+}
+
 
 void Player::keyReleaseEvent(QKeyEvent* event) {
     switch (event->key()) {
@@ -247,7 +286,7 @@ void Player::setWeapon(Weapon* weapon) {
 void Player::switchWeapon(int index) {
     if (weaponInventory.contains(index)) {
         setWeapon(weaponInventory[index]);
-        qDebug() << "🔄 Arme sélectionnée :" << currentWeapon->getName();
+        qDebug() << "Arme sélectionnée :" << currentWeapon->getName();
     }
 }
 
