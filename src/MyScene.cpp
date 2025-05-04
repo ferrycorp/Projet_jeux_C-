@@ -74,9 +74,6 @@ void MyScene::updateGame() {
     checkEnvironmentEffects();
     playerView();
     weaponText->setPlainText("Arme : " + player->getCurrentWeaponName());
-
-
-
 }
 
 
@@ -167,17 +164,6 @@ void MyScene::loadMap() {
 
 
 void MyScene::handleGameOver() {
-    // Arrêter le jeu
-    gameTimer->stop();
-    spawnTimer->stop();
-
-    // Supprimer tous les ennemis et projectiles
-    for (QGraphicsItem* item : items()) {
-        if (dynamic_cast<Enemy*>(item) || dynamic_cast<Projectile*>(item)) {
-            removeItem(item);
-            delete item;
-        }
-    }
 
     // Afficher le message de fin
     QGraphicsTextItem* gameOverText = addText("Fin du jeu !");
@@ -191,7 +177,7 @@ void MyScene::spawnEnemies() {
     ++frameCount;
 
     if (frameCount % 300 == 0) {
-        Enemy* enemy = new Enemy(player, tileSize);
+        Enemy* enemy = new Enemy(player, 32);
         addItem(enemy);
     }
 }
