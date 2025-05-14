@@ -8,7 +8,7 @@ Player::Player(QGraphicsItem* parent)
     connect(movementTimer, &QTimer::timeout, this, &Player::updateMovement);
     movementTimer->start(16); // ~60 fps
 
-    step = 3;
+    step = 1;
     rotationAngle = 0;
 
     initWeaponInventory();

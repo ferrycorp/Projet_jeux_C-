@@ -21,6 +21,9 @@ private:
     QTimer* moveTimer;
     Player* targetPlayer;
     int speed;
+    QVector<QPixmap> walkFrames;
+    int currentFrame = 0;
+    QTimer* animationTimer = nullptr;
 };
 
 #endif // MOB_H
