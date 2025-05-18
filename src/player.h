@@ -42,15 +42,15 @@ public:
     QString getCurrentWeaponName() const;
 
     const QMap<int,Weapon*>& getInventory() const { return weaponInventory; }
-
-
+    void handleKeyPress(QKeyEvent* event);
+    void handleKeyRelease(QKeyEvent* event);
+    void updateMovement();
 protected:
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent* event) override;
+
 
 private slots:
     void nextFrame();
-    void updateMovement();
+
 
 private:
     int hp =100;

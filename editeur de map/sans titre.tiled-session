@@ -1,0 +1,23 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "lave.tsx": {
+            "dynamicWrapping": false
+        }
+    },
+    "last.externalTilesetPath": "C:/Users/mgicq/OneDrive/Bureau/Isen/2eme Année/infos/C++/CPP_QT_TPminiprojet",
+    "last.imagePath": "C:/Users/mgicq/OneDrive/Bureau/Isen/2eme Année/infos/C++/CPP_QT_TPminiprojet/images",
+    "openFiles": [
+    ],
+    "project": "sans titre.tiled-project",
+    "recentFiles": [
+    ],
+    "tileset.lastUsedFilter": "Fichiers de jeu de tuiles Tiled (*.tsx *.xml)",
+    "tileset.lastUsedFormat": "tsx"
+}

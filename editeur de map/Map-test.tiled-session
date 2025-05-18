@@ -1,0 +1,228 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "map-test.tmx",
+    "expandedProjectPaths": [
+        "map",
+        "Texture",
+        "assests",
+        ".",
+        "projetc",
+        "editeur de map"
+    ],
+    "file.lastUsedOpenFilter": "Tous les Fichiers (*)",
+    "fileStates": {
+        "": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/mgicq/Downloads/example_biome_map.tmx": {
+            "scale": 1.4309375,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 159.68552085608215,
+                "y": 159.68552085608212
+            }
+        },
+        "C:/Users/mgicq/Downloads/example_biome_map.tmx#biomeset": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "C:/Users/mgicq/Downloads/example_biome_map.tmx#magical piller activation animation": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/mgicq/Downloads/example_biome_map.tmx#safeimagekit-lave": {
+            "scaleInDock": 1
+        },
+        "C:/Users/mgicq/OneDrive/Bureau/Isen/2eme Année/infos/C++/CPP_QT_TPminiprojet/Program Files/Tiled/examples/desert.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "C:/Users/mgicq/OneDrive/Bureau/Isen/2eme Année/infos/C++/CPP_QT_TPminiprojet/TX Tileset Grass.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "TX Tileset Grass.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "animation/WaterAndFire.tsx": {
+            "scaleInDock": 1
+        },
+        "animation/pillar.tsx": {
+            "scaleInDock": 1
+        },
+        "assests/WaterAndFire.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "assests/aniamtion torche.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "assests/animation torche.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "assests/portail pillar.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "editeur de map/herbe.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "editeur de map/lave.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "editeur de map/map-test.tmx": {
+            "scale": 0.510625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 480.78335373317015,
+                "y": 617.8702570379437
+            }
+        },
+        "map-test.tmx": {
+            "scale": 1,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 333.5,
+                "y": 325.5
+            }
+        },
+        "map-test.tmx#7257f94ba4827002b8e0344e9acd230b-Photoroom": {
+            "scaleInDock": 1
+        },
+        "map-test.tmx#TX Plant": {
+            "scaleInDock": 1
+        },
+        "map-test.tmx#WaterAndFire": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map-test.tmx#image_2025-05-13_160358615-Photoroom": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map-test.tmx#magical piller activation animation": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "map-test.tmx#tmw_desert_spacing": {
+            "scaleInDock": 1
+        },
+        "map-test.tmx#torche": {
+            "scaleInDock": 1
+        },
+        "map/map-test.tmx": {
+            "scale": 0.6174999999999999,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 480.16194331983814,
+                "y": 342.51012145748996
+            }
+        },
+        "map/map-test.tmx#magical piller activation animation": {
+            "scaleInDock": 1
+        },
+        "map/sans titre.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 326,
+                "y": 376.66666666666663
+            }
+        },
+        "map/sans titre.tmx#7257f94ba4827002b8e0344e9acd230b-Photoroom": {
+            "scaleInDock": 1
+        },
+        "projetc/map_1.json": {
+            "scale": 0.510625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 480.78335373317015,
+                "y": 320.1958384332925
+            }
+        },
+        "projetc/map_1.json#7257f94ba4827002b8e0344e9acd230b-Photoroom": {
+            "scaleInDock": 1
+        },
+        "projetc/map_1.json#TX Plant": {
+            "scaleInDock": 1
+        },
+        "projetc/map_1.json#TX Tileset Grass": {
+            "scaleInDock": 1
+        },
+        "projetc/map_1.json#buch-outdoor": {
+            "scaleInDock": 1
+        },
+        "projetc/map_1.json#tilset-single-tile-tileset-example": {
+            "scaleInDock": 1
+        },
+        "projetc/map_1.tmx": {
+            "scale": 0.510625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 480.78335373317015,
+                "y": 22.5214198286414
+            }
+        },
+        "projetc/map_1.tmx#7257f94ba4827002b8e0344e9acd230b-Photoroom": {
+            "scaleInDock": 1
+        },
+        "projetc/map_1.tmx#TX Plant": {
+            "scaleInDock": 1
+        },
+        "projetc/map_1.tmx#TX Tileset Grass": {
+            "scaleInDock": 1
+        },
+        "projetc/map_1.tmx#buch-outdoor": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "projetc/map_1.tmx#tilset-single-tile-tileset-example": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        }
+    },
+    "last.exportedFilePath": "C:/Users/mgicq/OneDrive/Bureau/Isen/2eme Année/infos/C++/CPP_QT_TPminiprojet/editeur de map/map",
+    "last.externalTilesetPath": "C:/Users/mgicq/OneDrive/Bureau/Isen/2eme Année/infos/C++/CPP_QT_TPminiprojet/editeur de map/animation",
+    "last.imagePath": "C:/Users/mgicq/OneDrive/Bureau/Isen/2eme Année/infos/C++/CPP_QT_TPminiprojet/editeur de map/Texture",
+    "map.lastUsedExportFilter": "Fichiers de carte JSON (*.tmj *.json)",
+    "map.lastUsedFormat": "tmx",
+    "openFiles": [
+        "map-test.tmx"
+    ],
+    "project": "Map-test.tiled-project",
+    "recentFiles": [
+        "map-test.tmx",
+        "assests/portail pillar.tsx",
+        "assests/animation torche.tsx",
+        "assests/WaterAndFire.tsx",
+        "map/map-test.tmx",
+        "C:/Users/mgicq/OneDrive/Bureau/Isen/2eme Année/infos/C++/CPP_QT_TPminiprojet/TX Tileset Grass.tsx",
+        "map/sans titre.tmx",
+        "TX Tileset Grass.tsx",
+        "C:/Users/mgicq/Downloads/example_biome_map.tmx",
+        "projetc/map_1.json",
+        "projetc/map_1.tmx",
+        "editeur de map/lave.tsx"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 32,
+        "width": 32
+    }
+}

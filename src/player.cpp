@@ -4,9 +4,9 @@
 
 Player::Player(QGraphicsItem* parent)
         : QGraphicsPixmapItem(parent), currentFrame(0) {
-    movementTimer = new QTimer(this);
-    connect(movementTimer, &QTimer::timeout, this, &Player::updateMovement);
-    movementTimer->start(16); // ~60 fps
+
+    setFlag(QGraphicsItem::ItemIsFocusable);
+    setFocus();
 
     step = 1;
     rotationAngle = 0;
@@ -67,7 +67,8 @@ void Player::setupDamageFlashTimer() {
 }
 
 
-void Player::keyPressEvent(QKeyEvent* event) {
+void Player::handleKeyPress(QKeyEvent *event) {
+    qDebug() << "Touche pressée :" << event->key();
     QPointF nextPos = pos();
     bool moved = false;
 
@@ -166,7 +167,7 @@ void Player::updateMovement() {
 }
 
 
-void Player::keyReleaseEvent(QKeyEvent* event) {
+void Player::handleKeyRelease(QKeyEvent *event) {
     switch (event->key()) {
         case Qt::Key_Left:
         case Qt::Key_Q:

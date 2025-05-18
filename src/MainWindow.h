@@ -13,6 +13,7 @@
 #include <QKeyEvent>
 #include <QShortcut>
 #include <QKeySequence>
+#include "menu.h"
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
@@ -26,12 +27,15 @@ protected:
 
 private slots:
     void slot_aboutMenu();
+    void startGameWithLevel(const QString& mapPath);
 
 private:
     QGraphicsView* mainView;
     MyScene* mainScene;
     QMenu* helpMenu;
     Inventory* inventory = nullptr; // ← renommé ici
-};
+    Menu* levelMenu = nullptr;
+
+    };
 
 #endif // MAINWINDOW_H

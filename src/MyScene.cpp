@@ -4,14 +4,32 @@
 
 MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     this->setSceneRect(0, 0, 400, 800);  // même taille que ta fenêtre
-    loadMap();
 
-    // Création du joueur
+
+}
+
+void MyScene::load() {
+    tileSize = 32;
+
+    QMap<int, QPixmap> tilesetMap;
+
+    // Chargement des tilesets (mêmes chemins que dans le constructeur)
+    addTileset(tilesetMap, "../editeur de map/Texture/Tileset_Grass.png",     1,    32, 32, 64);
+    addTileset(tilesetMap, "../editeur de map/Texture/pillar.png",    65,   32, 32, 2688);
+    addTileset(tilesetMap, "../editeur de map/Texture/torche.png",  3057, 32, 32, 288);
+    addTileset(tilesetMap, "../editeur de map/Texture/water.png",      3041, 32, 32, 48);
+    addTileset(tilesetMap, "../editeur de map/Texture/TX Plant.png",          2801, 32, 32, 256);
+
+    // Charge la carte dynamique choisie
+    loadMapFromJson(selectedMapPath, tilesetMap, 32, 32);
+
+    // Le reste est identique à ce que tu avais dans ton constructeur
     player = new Player();
     addItem(player);
-    int tileSize = 32;
-    player->setPos(32, 32); // Position initiale
-    // Barre de vie : fond (gris) + remplissage (rouge)
+    player->setPos(32, 32);
+    player->setFocus();
+
+
     int barWidth = 100;
     int barHeight = 10;
 
@@ -25,7 +43,6 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     healthBarFront->setZValue(3);
     addItem(healthBarFront);
 
-// Position en haut à gauche
     healthBarBack->setPos(10, 10);
     healthBarFront->setPos(10, 10);
 
@@ -33,25 +50,8 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     healthText->setDefaultTextColor(Qt::white);
     healthText->setFont(QFont("Arial", 10));
     healthText->setZValue(4);
-    healthText->setPos(10, 5); // juste sous la barre
-
+    healthText->setPos(10, 5);
     addItem(healthText);
-
-
-
-     //Test mob
-    for (int i = 0; i < 3; ++i) {
-        Enemy* enemy = new Enemy(player, tileSize);
-        addItem(enemy);
-    }
-
-    // Timer principal pour la boucle de jeu
-    gameTimer = new QTimer(this);
-    connect(gameTimer, &QTimer::timeout, this, &MyScene::updateGame);
-    gameTimer->start(16); // 60 FPS (~16ms)
-
-    connect(player, &Player::gameOver, this, &MyScene::handleGameOver);
-
 
     weaponText = new QGraphicsTextItem("Arme : " + player->getCurrentWeaponName());
     weaponText->setDefaultTextColor(Qt::white);
@@ -60,9 +60,23 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
     weaponText->setZValue(5);
     addItem(weaponText);
 
+    for (int i = 0; i < 3; ++i) {
+        Enemy* enemy = new Enemy(player, tileSize);
+        addItem(enemy);
+    }
+
+    gameTimer = new QTimer(this);
+    connect(gameTimer, &QTimer::timeout, this, &MyScene::updateGame);
+    gameTimer->start(16);
+    movementTimer = new QTimer(this);
+    connect(movementTimer, &QTimer::timeout, this, &MyScene::updateMovement);
+    movementTimer->start(16); // ~60 FPS
+
+    //connect(player, &Player::gameOver, this, &MyScene::handleGameOver);
 }
 
-MyScene::~MyScene() {
+
+    MyScene::~MyScene() {
     delete gameTimer;
     // Pas besoin de delete player, Qt le fait via QGraphicsScene
 }
@@ -77,8 +91,30 @@ void MyScene::updateGame() {
 }
 
 
+void MyScene::addTileset(QMap<int, QPixmap>& tilesetMap,
+                         const QString& imagePath,
+                         int firstGid,
+                         int tileWidth,
+                         int tileHeight,
+                         int tileCount) {
+    QPixmap tileset(imagePath);
+    if (tileset.isNull()) {
+        qWarning() << "⚠️ Impossible de charger le tileset :" << imagePath;
+        return;
+    }
 
-void MyScene::generateBiomeMap(int rows, int cols, std::vector<std::vector<int>>& map) {
+    int columns = tileset.width() / tileWidth;
+    for (int i = 0; i < tileCount; ++i) {
+        int x = (i % columns) * tileWidth;
+        int y = (i / columns) * tileHeight;
+        tilesetMap[firstGid + i] = tileset.copy(x, y, tileWidth, tileHeight);
+    }
+
+    qDebug() << "✅ Tileset chargé :" << imagePath << "à partir de GID" << firstGid;
+}
+
+
+/*void MyScene::generateBiomeMap(int rows, int cols, std::vector<std::vector<int>>& map) {
     map.resize(rows, std::vector<int>(cols, 0));
     srand(static_cast<unsigned>(time(nullptr)));
 
@@ -160,7 +196,54 @@ void MyScene::loadMap() {
 
     // Adapter la taille de la scène à la nouvelle map
     this->setSceneRect(0, 0, cols * tileSize, rows * tileSize);
+}*/
+
+void MyScene::loadMapFromJson(const QString& jsonPath, const QMap<int, QPixmap>& tilesetMap, int tileWidth, int tileHeight) {
+    QFile file(jsonPath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "❌ Erreur : impossible d’ouvrir le fichier JSON :" << jsonPath;
+        return;
+    }
+
+    QByteArray data = file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (!doc.isObject()) {
+        qWarning() << "❌ Erreur : JSON mal formé.";
+        return;
+    }
+
+    QJsonObject root = doc.object();
+    int mapWidth = root["width"].toInt();
+    int mapHeight = root["height"].toInt();
+    QJsonArray layers = root["layers"].toArray();
+
+    for (const QJsonValue& layerVal : layers) {
+        QJsonObject layer = layerVal.toObject();
+
+        if (layer["type"].toString() != "tilelayer")
+            continue;
+
+        QJsonArray data = layer["data"].toArray();
+        for (int i = 0; i < data.size(); ++i) {
+            int gid = data[i].toInt();
+            if (gid == 0) continue; // 0 = aucune tuile placée
+
+            int x = (i % mapWidth) * tileWidth;
+            int y = (i / mapWidth) * tileHeight;
+
+            if (tilesetMap.contains(gid)) {
+                QGraphicsPixmapItem* tile = new QGraphicsPixmapItem(tilesetMap[gid]);
+                tile->setPos(x, y);
+                addItem(tile);
+            }
+
+        }
+    }
+
+    // Redimensionne automatiquement la scène à la map
+    this->setSceneRect(0, 0, mapWidth * tileWidth, mapHeight * tileHeight);
 }
+
 
 
 void MyScene::handleGameOver() {
@@ -219,6 +302,25 @@ void MyScene::playerView() {
     }
 }
 
+void MyScene::keyPressEvent(QKeyEvent* event) {
+    if (player) {
+        player->handleKeyPress(event);
+    }
+}
+
+void MyScene::keyReleaseEvent(QKeyEvent* event) {
+    if (player) {
+        player->handleKeyRelease(event);
+    }
+}
+
+void MyScene::updateMovement() {
+    if (player) {
+        player->updateMovement();
+    }
+}
+
+
 void MyScene::resetGame() {
     clear();
 
@@ -245,5 +347,7 @@ void MyScene::resetGame() {
         spawnEnemies();
     }
 }
+
+
 
 

@@ -11,6 +11,18 @@
 #include <vector>
 #include <cstdlib>  // pour rand()
 #include <ctime>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QXmlStreamReader>
+
+struct TileAnimation {
+    QList<QPixmap> frames;
+    QList<int> durations;
+    int currentIndex = 0;
+    int elapsed = 0;
+};
 
 class MyScene : public QGraphicsScene {
     Q_OBJECT
@@ -20,10 +32,21 @@ public:
     virtual ~MyScene();
     Player* getPlayer() const { return player; }
     void setView(QGraphicsView* v) { view = v; }
+    void load();
+    void setMapPath(const QString& path) {
+        selectedMapPath = path;
+    }
+
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
+
 private slots:
     void updateGame(); // appelée régulièrement
     void handleGameOver();
     void resetGame();
+    void updateMovement();
+
 
 private:
     QPushButton* replayButton = nullptr;
@@ -33,9 +56,20 @@ private:
     QTimer* gameTimer;
     QTimer* spawnTimer;
     int tileSize;
+    QString selectedMapPath;
 
-    void generateBiomeMap(int rows, int cols, std::vector<std::vector<int>>& map);
-    void loadMap();
+    QTimer* movementTimer;
+
+
+    void loadMapFromJson(const QString& jsonPath, const QMap<int, QPixmap>& tilesetMap, int tileWidth, int tileHeight);
+    void addTileset(QMap<int, QPixmap>& tilesetMap,const QString& imagePath,int firstGid,int tileWidth,int tileHeight,int tileCount);
+
+
+
+        QMap<int, TileAnimation> animatedTileData;
+    QMap<int, QList<QGraphicsPixmapItem*>> animatedTileInstances;
+
+
     void spawnEnemies();
     void updateHealthBar();
     void checkEnvironmentEffects();
