@@ -12,12 +12,14 @@ class Enemy : public QObject, public QGraphicsPixmapItem {
 
 public:
     Enemy(Player* player, int tileSize, QGraphicsItem* parent = nullptr);
+    void takeDamage(int amount);
 
     private slots:
         void moveTowardPlayer();
         void checkCollisionWithPlayer();
 
 private:
+    int health = 2;
     QTimer* moveTimer;
     Player* targetPlayer;
     int speed;

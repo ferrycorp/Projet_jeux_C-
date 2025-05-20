@@ -71,8 +71,18 @@ void Enemy::checkCollisionWithPlayer() {
 
     if (collidesWithItem(targetPlayer)) {
         targetPlayer->takeDamage(10); // retire 10 points
-        // Facultatif : repositionne ou supprime l'ennemi après impact
         scene()->removeItem(this);
+        deleteLater();
+    }
+}
+
+void Enemy::takeDamage(int amount) {
+    health -= amount;
+
+    if (health <= 0) {
+        if (scene()) {
+            scene()->removeItem(this);
+        }
         deleteLater();
     }
 }

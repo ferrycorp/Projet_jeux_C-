@@ -8,7 +8,7 @@ Projectile::Projectile(qreal angleDeg, int tileSize, QGraphicsItem* parent)
     : QGraphicsPixmapItem(parent) {
 
     setPixmap(QPixmap("../images/projectile.png").scaled(tileSize / 2, tileSize / 2));
-    speed = 5;
+    speed = 10;
 
     // Convertir l'angle en vecteur de direction
     qreal angleRad = qDegreesToRadians(angleDeg);
@@ -32,11 +32,10 @@ void Projectile::moveForward() {
 
     // Détection de collision avec un ennemi
     QList<QGraphicsItem*> colliding = collidingItems();
-    for (QGraphicsItem* item : colliding) {
+    for (QGraphicsItem* item : collidingItems()) {
         Enemy* enemy = dynamic_cast<Enemy*>(item);
         if (enemy) {
-            scene()->removeItem(enemy);
-            enemy->deleteLater();
+            enemy->takeDamage(1);
 
             scene()->removeItem(this);
             deleteLater();
