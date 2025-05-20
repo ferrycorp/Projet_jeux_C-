@@ -1,4 +1,5 @@
 #include "mob.h"
+#include "mobmort.h"
 #include <QGraphicsScene>
 #include <QRandomGenerator>
 #include <QtMath>
@@ -35,8 +36,8 @@ Enemy::Enemy(Player* player, int tileSize, QGraphicsItem* parent)
 
     speed = 1;
 
-    int tileX = QRandomGenerator::global()->bounded(32);
-    int tileY = QRandomGenerator::global()->bounded(32);
+    int tileX = QRandomGenerator::global()->bounded(16);
+    int tileY = QRandomGenerator::global()->bounded(16);
     setPos(tileX * tileSize, tileY * tileSize);
 
     moveTimer = new QTimer(this);
@@ -81,6 +82,9 @@ void Enemy::takeDamage(int amount) {
 
     if (health <= 0) {
         if (scene()) {
+            Mobm* boom = new Mobm(pos(), 32); // ou tileSize
+            scene()->addItem(boom);
+
             scene()->removeItem(this);
         }
         deleteLater();

@@ -13,6 +13,7 @@ qt_standard_project_setup()
 
 add_executable(Projet_jeux_C- ${sourceCode}
         src/player.cpp
+        src/mobmort.cpp
         src/mob.cpp
         src/projectile.cpp
 )
