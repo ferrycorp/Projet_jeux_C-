@@ -9,7 +9,7 @@ Enemy::Enemy(Player* player, int tileSize, QGraphicsItem* parent)
     : QGraphicsPixmapItem(parent), targetPlayer(player) {
 
     for (int i = 1; i <= 4; ++i) {
-        QString path = QString("../images/enemy_%1.png").arg(i);
+        QString path = QString("../images/mob_%1.png").arg(i);
         QPixmap frame(path);
         walkFrames.append(frame.scaled(32, 32));
     }
@@ -23,20 +23,20 @@ Enemy::Enemy(Player* player, int tileSize, QGraphicsItem* parent)
 
         // Vérifie la position du joueur pour choisir la direction
         if (targetPlayer && targetPlayer->x() < this->x()) {
-            // Joueur à gauche → image normale
-            setPixmap(base);
-        } else {
             // Joueur à droite → retourner l'image horizontalement
             QPixmap flipped = base.transformed(QTransform().scale(-1, 1));
             setPixmap(flipped);
+        } else {
+            // Joueur à gauche → image normale
+            setPixmap(base);
         }
     });
     animationTimer->start(150); // Vitesse de l'animation
 
     speed = 1;
 
-    int tileX = QRandomGenerator::global()->bounded(16);
-    int tileY = QRandomGenerator::global()->bounded(16);
+    int tileX = QRandomGenerator::global()->bounded(32);
+    int tileY = QRandomGenerator::global()->bounded(32);
     setPos(tileX * tileSize, tileY * tileSize);
 
     moveTimer = new QTimer(this);
