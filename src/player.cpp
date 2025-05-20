@@ -68,7 +68,6 @@ void Player::setupDamageFlashTimer() {
 
 
 void Player::handleKeyPress(QKeyEvent *event) {
-    qDebug() << "Touche pressée :" << event->key();
     QPointF nextPos = pos();
     bool moved = false;
 

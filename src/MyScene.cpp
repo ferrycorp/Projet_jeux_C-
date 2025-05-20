@@ -15,10 +15,13 @@ void MyScene::load() {
 
     // Chargement des tilesets (mêmes chemins que dans le constructeur)
     addTileset(tilesetMap, "../editeur de map/Texture/Tileset_Grass.png",     1,    32, 32, 64);
-    addTileset(tilesetMap, "../editeur de map/Texture/pillar.png",    65,   32, 32, 2688);
+   /* addTileset(tilesetMap, "../editeur de map/Texture/pillar.png",    65,   32, 32, 2688);
     addTileset(tilesetMap, "../editeur de map/Texture/torche.png",  3057, 32, 32, 288);
     addTileset(tilesetMap, "../editeur de map/Texture/water.png",      3041, 32, 32, 48);
     addTileset(tilesetMap, "../editeur de map/Texture/TX Plant.png",          2801, 32, 32, 256);
+    */
+
+    addTilesetsFromJson(selectedMapPath, tilesetMap, 32, 32);
 
     // Charge la carte dynamique choisie
     loadMapFromJson(selectedMapPath, tilesetMap, 32, 32);
@@ -112,6 +115,59 @@ void MyScene::addTileset(QMap<int, QPixmap>& tilesetMap,
 
     qDebug() << "✅ Tileset chargé :" << imagePath << "à partir de GID" << firstGid;
 }
+
+void MyScene::addTilesetsFromJson(const QString& jsonPath, QMap<int, QPixmap>& tilesetMap, int tileWidth, int tileHeight) {
+    QFile file(jsonPath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "❌ Impossible d’ouvrir le fichier JSON :" << jsonPath;
+        return;
+    }
+
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+    file.close();
+
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
+        qWarning() << "❌ Erreur de parsing JSON :" << parseError.errorString();
+        return;
+    }
+
+    QJsonObject root = doc.object();
+    QJsonArray tilesets = root["tilesets"].toArray();
+
+    for (const QJsonValue& val : tilesets) {
+        QJsonObject obj = val.toObject();
+
+        if (!obj.contains("image")) {
+            qWarning() << "Tileset externe ignoré (fichier .tsx non résolu automatiquement):" << obj["source"].toString();
+            continue;
+        }
+
+        QString imagePath = obj["image"].toString().replace("..", "../editeur de map");  // ajuster si nécessaire
+        int firstGid = obj["firstgid"].toInt();
+        int imageWidth = obj["imagewidth"].toInt();
+        int imageHeight = obj["imageheight"].toInt();
+        int tileCount = obj["tilecount"].toInt();
+
+        QPixmap tileset(imagePath);
+        if (tileset.isNull()) {
+            qWarning() << "❌ Échec du chargement du tileset :" << imagePath;
+            continue;
+        }
+
+        int columns = imageWidth / tileWidth;
+
+        for (int i = 0; i < tileCount; ++i) {
+            int x = (i % columns) * tileWidth;
+            int y = (i / columns) * tileHeight;
+            QPixmap tile = tileset.copy(x, y, tileWidth, tileHeight);
+            tilesetMap[firstGid + i] = tile;
+        }
+
+        qDebug() << "✅ Tileset chargé automatiquement :" << imagePath << "GID à partir de" << firstGid;
+    }
+}
+
 
 
 /*void MyScene::generateBiomeMap(int rows, int cols, std::vector<std::vector<int>>& map) {

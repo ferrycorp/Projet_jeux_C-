@@ -64,6 +64,8 @@ private:
     void loadMapFromJson(const QString& jsonPath, const QMap<int, QPixmap>& tilesetMap, int tileWidth, int tileHeight);
     void addTileset(QMap<int, QPixmap>& tilesetMap,const QString& imagePath,int firstGid,int tileWidth,int tileHeight,int tileCount);
 
+    void addTilesetsFromJson(const QString& jsonPath, QMap<int, QPixmap>& tilesetMap, int tileWidth, int tileHeight);
+
 
 
         QMap<int, TileAnimation> animatedTileData;
