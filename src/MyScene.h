@@ -7,6 +7,9 @@
 #include <QPushButton>
 #include "Player.h"
 #include "mob.h"
+#include "Boss.h"
+#include "Golem.h"
+#include "projectile.h"
 #include <QDebug>
 #include <vector>
 #include <cstdlib>  // pour rand()
@@ -46,9 +49,11 @@ private slots:
     void handleGameOver();
     void resetGame();
     void updateMovement();
+    void updateHud();
 
 
-private:
+
+        private:
     QPushButton* replayButton = nullptr;
     QPushButton* quitButton = nullptr;
     Player* player;
@@ -71,10 +76,9 @@ private:
         QMap<int, TileAnimation> animatedTileData;
     QMap<int, QList<QGraphicsPixmapItem*>> animatedTileInstances;
 
-
+    Boss* boss = nullptr;
     void spawnEnemies();
     void updateHealthBar();
-    void checkEnvironmentEffects();
     void playerView();
 
     QGraphicsRectItem* healthBarBack = nullptr;

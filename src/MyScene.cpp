@@ -33,40 +33,66 @@ void MyScene::load() {
     player->setFocus();
 
 
+    // Dimensions
     int barWidth = 100;
-    int barHeight = 10;
+    int barHeight = 12;
+    int barX = 10;
+    int barY = 10;
 
+// Fond de la barre
     healthBarBack = new QGraphicsRectItem(0, 0, barWidth, barHeight);
-    healthBarBack->setBrush(Qt::gray);
+    healthBarBack->setBrush(QColor(50, 50, 50)); // Gris foncé
+    healthBarBack->setPen(QPen(Qt::white));     // Contour blanc
     healthBarBack->setZValue(2);
     addItem(healthBarBack);
 
+// Barre de vie dynamique (avant-plan)
     healthBarFront = new QGraphicsRectItem(0, 0, barWidth, barHeight);
     healthBarFront->setBrush(Qt::red);
+    healthBarFront->setPen(Qt::NoPen);
     healthBarFront->setZValue(3);
     addItem(healthBarFront);
 
-    healthBarBack->setPos(10, 10);
-    healthBarFront->setPos(10, 10);
-
+// Texte des points de vie
     healthText = new QGraphicsTextItem("HP : 100 / 100");
     healthText->setDefaultTextColor(Qt::white);
-    healthText->setFont(QFont("Arial", 10));
+    healthText->setFont(QFont("Consolas", 10, QFont::Bold));
     healthText->setZValue(4);
-    healthText->setPos(10, 5);
     addItem(healthText);
 
+// Positionnement cohérent
+    healthBarBack->setPos(barX, barY);
+    healthBarFront->setPos(barX, barY);
+    healthText->setPos(barX + barWidth + 5, barY - 2); // À droite de la barre
+
+// Texte de l'arme
     weaponText = new QGraphicsTextItem("Arme : " + player->getCurrentWeaponName());
     weaponText->setDefaultTextColor(Qt::white);
-    weaponText->setFont(QFont("Arial", 10));
-    weaponText->setPos(10, 40);
-    weaponText->setZValue(5);
+    weaponText->setFont(QFont("Consolas", 10, QFont::Bold));
+    weaponText->setZValue(4);
+    weaponText->setPos(barX, barY + barHeight + 10); // Sous la barre
     addItem(weaponText);
+
+
 
     for (int i = 0; i < 3; ++i) {
         Enemy* enemy = new Enemy(player, tileSize);
         addItem(enemy);
     }
+
+    Boss* boss = new Boss(player, 256);
+    addItem(boss);
+    boss ->setPos(10 * tileSize, 10 * tileSize);
+
+    Golem* golem = new Golem(player, tileSize);
+    addItem(golem);
+    golem->setPos(12 * tileSize, 12 * tileSize); // Correction ici
+    QGraphicsPixmapItem* projectile = new QGraphicsPixmapItem();
+    projectile->setData(0, "player_projectile");
+    addItem(projectile);
+
+// Positionne le boss quelque part sur la carte (ex : en bas à droite)
+
 
     gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, &MyScene::updateGame);
@@ -88,10 +114,23 @@ void MyScene::updateGame() {
     // Ici on pourra gérer les tirs, les collisions, etc.
     spawnEnemies();
     updateHealthBar();
-    checkEnvironmentEffects();
     playerView();
     weaponText->setPlainText("Arme : " + player->getCurrentWeaponName());
+
+    updateHud();
 }
+
+void MyScene::updateHud() {
+    if (!view) return;
+
+    QPointF topLeft = view->mapToScene(0, 0); // coin supérieur gauche de l'écran
+
+    healthBarBack->setPos(topLeft + QPointF(10, 10));
+    healthBarFront->setPos(topLeft + QPointF(10, 10));
+    healthText->setPos(topLeft + QPointF(5, 5));
+    weaponText->setPos(topLeft + QPointF(10, 30));
+}
+
 
 
 void MyScene::addTileset(QMap<int, QPixmap>& tilesetMap,
@@ -168,91 +207,6 @@ void MyScene::addTilesetsFromJson(const QString& jsonPath, QMap<int, QPixmap>& t
     }
 }
 
-
-
-/*void MyScene::generateBiomeMap(int rows, int cols, std::vector<std::vector<int>>& map) {
-    map.resize(rows, std::vector<int>(cols, 0));
-    srand(static_cast<unsigned>(time(nullptr)));
-
-    for (int row = 0; row < rows; ++row) {
-        for (int col = 0; col < cols; ++col) {
-            // Bords extérieurs en murs
-            if (row == 0 || col == 0 || row == rows - 1 || col == cols - 1) {
-                map[row][col] = 1;
-                continue;
-            }
-
-            // Génération aléatoire des biomes
-            int r = rand() % 100;
-
-            if (r < 60) map[row][col] = 0;         // sol normal
-            else if (r < 75) map[row][col] = 2;    // lave
-            else if (r < 85) map[row][col] = 3;    // glace
-            else if (r < 95) map[row][col] = 4;    // herbe
-            else map[row][col] = 1;                // mur
-        }
-    }
-}
-
-void MyScene::loadMap() {
-    const int tileSize = 32;
-
-    // Carte avec plusieurs environnements :
-    // 0 = sol normal, 1 = mur, 2 = lave, 3 = glace, 4 = herbe
-    int rows = 15;
-    int cols = 15;
-    std::vector<std::vector<int>> map;
-    generateBiomeMap(rows, cols, map);
-
-    // Chargement des images
-    QPixmap wallPixmap("../images/mur.jpg");
-    QPixmap floorPixmap("../images/sol.jpg");
-    QPixmap lavaPixmap("../images/lave.jpg");
-    QPixmap icePixmap("../images/ice.jpg");
-    QPixmap grassPixmap("../images/herbe.jpg");
-
-    // Redimensionnement
-    wallPixmap = wallPixmap.scaled(tileSize, tileSize);
-    floorPixmap = floorPixmap.scaled(tileSize, tileSize);
-    lavaPixmap = lavaPixmap.scaled(tileSize, tileSize);
-    icePixmap = icePixmap.scaled(tileSize, tileSize);
-    grassPixmap = grassPixmap.scaled(tileSize, tileSize);
-
-    for (int row = 0; row < rows; ++row) {
-        for (int col = 0; col < cols; ++col) {
-            int value = map[row][col];
-            QPixmap pixmap;
-
-            // Sélection de la bonne texture
-            switch (value) {
-                case 0: pixmap = floorPixmap; break;
-                case 1: pixmap = wallPixmap; break;
-                case 2: pixmap = lavaPixmap; break;
-                case 3: pixmap = icePixmap; break;
-                case 4: pixmap = grassPixmap; break;
-                default: pixmap = floorPixmap; break;
-            }
-
-            // Création de la tuile
-            QGraphicsPixmapItem* tile = new QGraphicsPixmapItem(pixmap);
-            tile->setPos(col * tileSize, row * tileSize);
-
-            // Pour permettre la détection (collision, effet...)
-            switch (value) {
-                case 1: tile->setData(0, "wall"); break;
-                case 2: tile->setData(0, "lava"); break;
-                case 3: tile->setData(0, "ice"); break;
-                case 4: tile->setData(0, "grass"); break;
-                default: tile->setData(0, "floor"); break;
-            }
-
-            this->addItem(tile);
-        }
-    }
-
-    // Adapter la taille de la scène à la nouvelle map
-    this->setSceneRect(0, 0, cols * tileSize, rows * tileSize);
-}*/
 
 void MyScene::loadMapFromJson(const QString& jsonPath, const QMap<int, QPixmap>& tilesetMap, int tileWidth, int tileHeight) {
     QFile file(jsonPath);
@@ -331,26 +285,6 @@ void MyScene::updateHealthBar() {
     healthText->setPlainText(QString("HP : %1 / %2").arg(hp).arg(maxHp));
 }
 
-void MyScene::checkEnvironmentEffects() {
-    bool onLava = false;
-    bool onIce = false;
-
-    for (QGraphicsItem* item : items()) {
-        if (player->collidesWithItem(item)) {
-            QString type = item->data(0).toString();
-
-            if (type == "lava") onLava = true;
-            if (type == "ice")  onIce = true;
-        }
-    }
-
-    if (onLava)
-        player->startLavaDamage();
-    else
-        player->stopLavaDamage();
-
-    player->setStep(onIce ? 1 : 3);
-}
 
 void MyScene::playerView() {
     if (view && player) {

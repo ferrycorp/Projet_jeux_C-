@@ -8,7 +8,7 @@ Player::Player(QGraphicsItem* parent)
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFocus();
 
-    step = 1;
+    step = 3;
     rotationAngle = 0;
 
     initWeaponInventory();
