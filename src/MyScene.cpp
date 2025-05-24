@@ -15,11 +15,12 @@ void MyScene::load() {
 
     // Chargement des tilesets (mêmes chemins que dans le constructeur)
     addTileset(tilesetMap, "../editeur de map/Texture/Tileset_Grass.png",     1,    32, 32, 64);
-   /* addTileset(tilesetMap, "../editeur de map/Texture/pillar.png",    65,   32, 32, 2688);
+   /*
     addTileset(tilesetMap, "../editeur de map/Texture/torche.png",  3057, 32, 32, 288);
     addTileset(tilesetMap, "../editeur de map/Texture/water.png",      3041, 32, 32, 48);
     addTileset(tilesetMap, "../editeur de map/Texture/TX Plant.png",          2801, 32, 32, 256);
     */
+    //addTileset(tilesetMap,"../editeur de map/Texture/TX Tileset Wall.png",609,32,32,256);
 
     addTilesetsFromJson(selectedMapPath, tilesetMap, 32, 32);
 
@@ -29,7 +30,7 @@ void MyScene::load() {
     // Le reste est identique à ce que tu avais dans ton constructeur
     player = new Player();
     addItem(player);
-    player->setPos(32, 32);
+    player->setPos(9*tileSize, 9*tileSize);
     player->setFocus();
 
 
@@ -215,45 +216,77 @@ void MyScene::loadMapFromJson(const QString& jsonPath, const QMap<int, QPixmap>&
         return;
     }
 
-    QByteArray data = file.readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(data);
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
     if (!doc.isObject()) {
-        qWarning() << "❌ Erreur : JSON mal formé.";
+        qWarning() << "❌ JSON mal formé.";
         return;
     }
 
     QJsonObject root = doc.object();
+    QJsonArray layers = root["layers"].toArray();
     int mapWidth = root["width"].toInt();
     int mapHeight = root["height"].toInt();
-    QJsonArray layers = root["layers"].toArray();
 
     for (const QJsonValue& layerVal : layers) {
         QJsonObject layer = layerVal.toObject();
-
-        if (layer["type"].toString() != "tilelayer")
-            continue;
-
+        QString layerClass = layer["class"].toString();
         QJsonArray data = layer["data"].toArray();
+
         for (int i = 0; i < data.size(); ++i) {
-            int gid = data[i].toInt();
-            if (gid == 0) continue; // 0 = aucune tuile placée
+            quint32 rawGid = static_cast<quint32>(data[i].toDouble());
+            if (rawGid == 0) continue;
+
+            TileTransform t = decodeGid(rawGid);
+            if (!tilesetMap.contains(t.gid)) {
+                qWarning() << "⚠️ GID inconnu :" << t.gid;
+                continue;
+            }
 
             int x = (i % mapWidth) * tileWidth;
             int y = (i / mapWidth) * tileHeight;
 
-            if (tilesetMap.contains(gid)) {
-                QGraphicsPixmapItem* tile = new QGraphicsPixmapItem(tilesetMap[gid]);
-                tile->setPos(x, y);
-                addItem(tile);
+            if (layerClass == "collision") {
+                QGraphicsRectItem* collider = new QGraphicsRectItem(0, 0, tileWidth, tileHeight);
+                collider->setPos(x, y);
+                collider->setBrush(Qt::transparent);
+                collider->setPen(Qt::NoPen);
+                collider->setData(0, "wall");
+                collider->setZValue(1);
+                addItem(collider);
+                continue;
             }
 
+            QPixmap baseTile = tilesetMap[t.gid];
+            QGraphicsPixmapItem* tile = new QGraphicsPixmapItem(baseTile);
+            tile->setPos(x, y);
+            tile->setZValue(0);
+
+            // Transformation autour du centre
+            QTransform transform;
+            QPointF center(tileWidth / 2.0, tileHeight / 2.0);
+
+            if (t.flipD) {
+                transform.translate(center.x(), center.y());
+                transform.rotate(90);  // ou 270 selon orientation diagonale
+                transform.translate(-center.x(), -center.y());
+            }
+
+            if (t.flipH || t.flipV) {
+                qreal sx = t.flipH ? -1 : 1;
+                qreal sy = t.flipV ? -1 : 1;
+                transform.translate(center.x(), center.y());
+                transform.scale(sx, sy);
+                transform.translate(-center.x(), -center.y());
+            }
+
+            tile->setTransform(transform);
+            addItem(tile);
         }
     }
 
-    // Redimensionne automatiquement la scène à la map
-    this->setSceneRect(0, 0, mapWidth * tileWidth, mapHeight * tileHeight);
+    setSceneRect(0, 0, mapWidth * tileWidth, mapHeight * tileHeight);
 }
-
 
 
 void MyScene::handleGameOver() {

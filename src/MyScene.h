@@ -27,6 +27,23 @@ struct TileAnimation {
     int elapsed = 0;
 };
 
+struct TileTransform {
+    int gid;
+    bool flipH = false;
+    bool flipV = false;
+    bool flipD = false;
+};
+
+static TileTransform decodeGid(quint32 rawGid) {
+    TileTransform result;
+    result.flipH = rawGid & 0x80000000;
+    result.flipV = rawGid & 0x40000000;
+    result.flipD = rawGid & 0x20000000;
+    result.gid   = rawGid & ~(0x80000000 | 0x40000000 | 0x20000000);
+    return result;
+}
+
+
 class MyScene : public QGraphicsScene {
     Q_OBJECT
 
