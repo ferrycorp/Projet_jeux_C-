@@ -56,6 +56,7 @@ public:
     void setMapPath(const QString& path) {
         selectedMapPath = path;
     }
+    void increaseScore(int amount);
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;
@@ -104,6 +105,9 @@ private slots:
 
     QGraphicsTextItem* weaponText = nullptr;
     QGraphicsView* view = nullptr;
+
+    QGraphicsTextItem* scoreText = nullptr;
+    int score = 0;  // Valeur initiale du score
 
 
 

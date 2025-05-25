@@ -1,5 +1,6 @@
 #include "mob.h"
 #include "mobmort.h"
+#include "MyScene.h"
 #include <QGraphicsScene>
 #include <QRandomGenerator>
 #include <QtMath>
@@ -80,13 +81,17 @@ void Enemy::checkCollisionWithPlayer() {
 void Enemy::takeDamage(int amount) {
     health -= amount;
 
-    if (health <= 0) {
-        if (scene()) {
-            Mobm* boom = new Mobm(pos(), 32); // ou tileSize
-            scene()->addItem(boom);
+    if (health <= 0 && scene()) {
+        Mobm* boom = new Mobm(pos(), 32); // Effet de mort
+        scene()->addItem(boom);
 
-            scene()->removeItem(this);
+        // 🔥 Incrémenter le score si la scène est de type MyScene
+        MyScene* myScene = dynamic_cast<MyScene*>(scene());
+        if (myScene) {
+            myScene->increaseScore(10);  // Tu choisis la valeur
         }
+
+        scene()->removeItem(this);
         deleteLater();
     }
 }

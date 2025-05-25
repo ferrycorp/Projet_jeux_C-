@@ -74,6 +74,14 @@ void MyScene::load() {
     weaponText->setPos(barX, barY + barHeight + 10); // Sous la barre
     addItem(weaponText);
 
+    // Texte du score
+    scoreText = new QGraphicsTextItem("Score : 0");
+    scoreText->setDefaultTextColor(Qt::yellow);
+    scoreText->setFont(QFont("Consolas", 10, QFont::Bold));
+    scoreText->setZValue(4);
+    addItem(scoreText);
+    scoreText->setPos(barX, barY + barHeight + 30); // Sous l'arme
+
 
 
     for (int i = 0; i < 3; ++i) {
@@ -130,6 +138,8 @@ void MyScene::updateHud() {
     healthBarFront->setPos(topLeft + QPointF(10, 10));
     healthText->setPos(topLeft + QPointF(5, 5));
     weaponText->setPos(topLeft + QPointF(10, 30));
+    scoreText->setPos(topLeft + QPointF(10, 50)); // Bien placé sous les autres éléments
+    scoreText->setPlainText(QString("Score : %1").arg(score));
 }
 
 
@@ -371,6 +381,11 @@ void MyScene::resetGame() {
     }
 }
 
-
+void MyScene::increaseScore(int amount) {
+    score += amount;
+    if (scoreText) {
+        scoreText->setPlainText(QString("Score : %1").arg(score));
+    }
+}
 
 
