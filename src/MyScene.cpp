@@ -1,4 +1,5 @@
 #include "MyScene.h"
+#include <QRandomGenerator>
 #include <QDebug>
 
 
@@ -96,15 +97,6 @@ void MyScene::load() {
 
     addItem(golem);
     golem->setPos(15 * tileSize, 13 * tileSize);
-    Golem* golem2 = new Golem(player, 128);
-    connect(golem2, &Golem::golemDefeated, this, [this]() {
-        increaseScore(20);
-    });
-    addItem(golem2);
-    golem2->setPos(12 * tileSize, 12 * tileSize);
-
-
-
 
 
     QGraphicsPixmapItem* projectile = new QGraphicsPixmapItem();
@@ -321,9 +313,20 @@ void MyScene::spawnEnemies() {
     static int frameCount = 0;
     ++frameCount;
 
-    if (frameCount % 300 == 0) {
+    if (frameCount % 150 == 0) {
         Enemy* enemy = new Enemy(player, 32);
         addItem(enemy);
+    }
+    if (frameCount % 500 == 0) {
+        Golem* golem = new Golem(player, 128);
+        connect(golem, &Golem::golemDefeated, this, [this]() {
+            increaseScore(20);
+        });
+
+        addItem(golem);
+        int tileX = QRandomGenerator::global()->bounded(16);
+        int tileY = QRandomGenerator::global()->bounded(16);
+        golem->setPos(tileX * tileSize, tileY * tileSize);
     }
 }
 
