@@ -81,8 +81,6 @@ Golem::~Golem() {
         collisionTimer->stop();
         collisionTimer->deleteLater();
     }
-
-    qDebug() << "Golem détruit proprement";
 }
 
 void Golem::setupCollisionBox() {
@@ -105,9 +103,9 @@ QPainterPath Golem::shape() const {
 }
 
 void Golem::updateAnimation() {
-    if (animationFrames.isEmpty() || isDying) return;
 
-    if (currentState == DYING) {
+    if (isDying == true) {
+        animationFrames = deathFrames;
         if (currentFrame < animationFrames.size()) {
             setPixmap(animationFrames[currentFrame]);
             currentFrame++;
@@ -139,7 +137,6 @@ QVector<QPixmap> Golem::loadAnimationFrames(const QString& folder, const QString
         if (!frame.isNull()) {
             frames.append(frame);
         } else {
-            qDebug() << "Erreur de chargement:" << path;
             // Créer un sprite de fallback si l'image n'existe pas
             QPixmap fallback(spriteSize, spriteSize);
             fallback.fill(Qt::blue);
@@ -217,14 +214,12 @@ void Golem::handleProjectileCollision(QGraphicsItem* projectile) {
     scene()->removeItem(projectile);
     //projectile->deleteLater();
 
-    qDebug() << "Collision détectée ! Golem touché par projectile.";
 }
 
 void Golem::takeDamage(int amount) {
     if (!canTakeDamage || isDying) return;
 
     health -= amount;
-    qDebug() << "Golem prend" << amount << "dégâts. HP restant:" << health;
 
     // Effet de clignotement rouge
     isFlashing = true;
@@ -275,6 +270,7 @@ void Golem::takeDamage(int amount) {
         if (animationTimer) {
             disconnect(animationTimer, nullptr, this, nullptr);
             connect(animationTimer, &QTimer::timeout, this, &Golem::updateAnimation);
+            qDebug() << "mort";
             animationTimer->start(150);
         }
     }
@@ -348,7 +344,6 @@ void Golem::loadAnimations() {
     qDebug() << "Frames de mort chargées :" << deathFrames.size();
 
     if (idleFrames.isEmpty()) {
-        qDebug() << "Erreur : frames 'idle' non chargées - création de sprites de fallback";
         // Créer des sprites de fallback
         for (int i = 0; i < 4; ++i) {
             QPixmap fallback(spriteSize, spriteSize);
@@ -417,6 +412,5 @@ QPointF Golem::calculateMovementVector(double moveSpeed) {
 }
 
 void Golem::dropLoot() {
-    qDebug() << "Le golem a été vaincu";
     // Implémenter selon votre système de loot
 }

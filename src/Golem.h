@@ -66,11 +66,12 @@ public:
     QRectF getHitbox() const;
     bool isPointInHitbox(const QPointF& point) const;
 
+    void updateAnimation();
+
 signals:
     void golemDefeated();
 
 private slots:
-    void updateAnimation();
     void performAction();
     void fireProjectile();
     void flashDamage();
