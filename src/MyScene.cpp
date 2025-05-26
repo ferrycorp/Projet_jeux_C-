@@ -1,5 +1,4 @@
 #include "MyScene.h"
-#include <QRandomGenerator>
 #include <QDebug>
 
 
@@ -10,6 +9,19 @@ MyScene::MyScene(QObject* parent) : QGraphicsScene(parent) {
 }
 
 void MyScene::load() {
+    player = nullptr;
+    enemy = nullptr;
+    gameTimer = nullptr;
+    spawnTimer = nullptr;
+    movementTimer = nullptr;
+    golemSpawnTimer = nullptr;
+    boss = nullptr;
+    healthBarBack = nullptr;
+    healthBarFront = nullptr;
+    healthText = nullptr;
+    weaponText = nullptr;
+    view = nullptr;
+    scoreText = nullptr;
     tileSize = 32;
 
     QMap<int, QPixmap> tilesetMap;
@@ -34,59 +46,13 @@ void MyScene::load() {
     player->setPos(9*tileSize, 9*tileSize);
     player->setFocus();
 
+    initHud();
 
-    // Dimensions
-    int barWidth = 100;
-    int barHeight = 12;
-    int barX = 10;
-    int barY = 10;
+    static int frameCount = 0;
+    ++frameCount;
 
-// Fond de la barre
-    healthBarBack = new QGraphicsRectItem(0, 0, barWidth, barHeight);
-    healthBarBack->setBrush(QColor(50, 50, 50)); // Gris foncé
-    healthBarBack->setPen(QPen(Qt::white));     // Contour blanc
-    healthBarBack->setZValue(2);
-    addItem(healthBarBack);
-
-// Barre de vie dynamique (avant-plan)
-    healthBarFront = new QGraphicsRectItem(0, 0, barWidth, barHeight);
-    healthBarFront->setBrush(Qt::red);
-    healthBarFront->setPen(Qt::NoPen);
-    healthBarFront->setZValue(3);
-    addItem(healthBarFront);
-
-// Texte des points de vie
-    healthText = new QGraphicsTextItem("HP : 100 / 100");
-    healthText->setDefaultTextColor(Qt::white);
-    healthText->setFont(QFont("Consolas", 10, QFont::Bold));
-    healthText->setZValue(4);
-    addItem(healthText);
-
-// Positionnement cohérent
-    healthBarBack->setPos(barX, barY);
-    healthBarFront->setPos(barX, barY);
-    healthText->setPos(barX + barWidth + 5, barY - 2); // À droite de la barre
-
-// Texte de l'arme
-    weaponText = new QGraphicsTextItem("Arme : " + player->getCurrentWeaponName());
-    weaponText->setDefaultTextColor(Qt::white);
-    weaponText->setFont(QFont("Consolas", 10, QFont::Bold));
-    weaponText->setZValue(4);
-    weaponText->setPos(barX, barY + barHeight + 10); // Sous la barre
-    addItem(weaponText);
-
-    // Texte du score
-    scoreText = new QGraphicsTextItem("Score : 0");
-    scoreText->setDefaultTextColor(Qt::yellow);
-    scoreText->setFont(QFont("Consolas", 10, QFont::Bold));
-    scoreText->setZValue(4);
-    addItem(scoreText);
-    scoreText->setPos(barX, barY + barHeight + 30); // Sous l'arme
-
-
-
-    for (int i = 0; i < 3; ++i) {
-        Enemy* enemy = new Enemy(player, tileSize);
+    if (frameCount % 300 == 0) {
+        Enemy* enemy = new Enemy(player, 32);
         addItem(enemy);
     }
 
@@ -97,6 +63,20 @@ void MyScene::load() {
 
     addItem(golem);
     golem->setPos(15 * tileSize, 13 * tileSize);
+    if (frameCount % 500 == 0) {
+        Golem* golem = new Golem(player, 128);
+        connect(golem, &Golem::golemDefeated, this, [this]() {
+            increaseScore(20);
+        });
+
+        addItem(golem);
+        int tileX = QRandomGenerator::global()->bounded(16);
+        int tileY = QRandomGenerator::global()->bounded(16);
+        golem->setPos(tileX * tileSize, tileY * tileSize);
+    }
+
+
+
 
 
     QGraphicsPixmapItem* projectile = new QGraphicsPixmapItem();
@@ -121,29 +101,37 @@ void MyScene::load() {
 }
 
 void MyScene::updateGame() {
-    // Ici on pourra gérer les tirs, les collisions, etc.
+    if (!player) return;
+
     spawnEnemies();
     updateHealthBar();
     playerView();
-    weaponText->setPlainText("Arme : " + player->getCurrentWeaponName());
 
+    if (weaponText) weaponText->setPlainText("Arme : " + player->getCurrentWeaponName());
     updateHud();
+
+    if (player->getHp() <= 0) {
+        showGameOverScreen();
+    }
 }
 
 void MyScene::updateHud() {
-    if (!view) return;
+        if (!view) return;
 
-    QPointF topLeft = view->mapToScene(0, 0); // coin supérieur gauche de l'écran
+        QPointF topLeft = view->mapToScene(0, 0);
 
-    healthBarBack->setPos(topLeft + QPointF(10, 10));
-    healthBarFront->setPos(topLeft + QPointF(10, 10));
-    healthText->setPos(topLeft + QPointF(5, 5));
-    weaponText->setPos(topLeft + QPointF(10, 30));
-    scoreText->setPos(topLeft + QPointF(10, 50)); // Bien placé sous les autres éléments
-    scoreText->setPlainText(QString("Score : %1").arg(score));
-}
-
-
+        if (healthBarBack) healthBarBack->setPos(topLeft + QPointF(10, 10));
+        if (healthBarFront) healthBarFront->setPos(topLeft + QPointF(10, 10));
+        if (healthText) {
+            healthText->setPos(topLeft + QPointF(5, 5));
+            healthText->setPlainText(QString("HP : %1").arg(player ? player->getHp() : 0));
+        }
+        if (weaponText) weaponText->setPos(topLeft + QPointF(10, 30));
+        if (scoreText) {
+            scoreText->setPos(topLeft + QPointF(10, 50));
+            scoreText->setPlainText(QString("Score : %1").arg(score));
+        }
+    }
 
 void MyScene::addTileset(QMap<int, QPixmap>& tilesetMap,
                          const QString& imagePath,
@@ -301,36 +289,42 @@ void MyScene::loadMapFromJson(const QString& jsonPath, const QMap<int, QPixmap>&
 
 
 void MyScene::handleGameOver() {
+    if (gameTimer) gameTimer->stop();
+    if (movementTimer) movementTimer->stop();
 
-    // Afficher le message de fin
-    QGraphicsTextItem* gameOverText = addText("Fin du jeu !");
+    // Texte Game Over
+    QGraphicsTextItem* gameOverText = new QGraphicsTextItem("GAME OVER");
     gameOverText->setDefaultTextColor(Qt::red);
-    gameOverText->setFont(QFont("Arial", 24, QFont::Bold));
-    gameOverText->setPos(width() / 2 - 100, height() / 2 - 50);
+    gameOverText->setFont(QFont("Arial", 40, QFont::Bold));
+    gameOverText->setZValue(10); // devant tout
+
+    // Centrer le texte dans la vue
+    if (view) {
+        QPointF center = view->mapToScene(view->viewport()->rect().center());
+        QRectF textRect = gameOverText->boundingRect();
+        gameOverText->setPos(center.x() - textRect.width() / 2, center.y() - textRect.height() / 2);
+    } else {
+        // Si pas de vue, positionner au centre de la scène
+        QRectF sceneRect = this->sceneRect();
+        QRectF textRect = gameOverText->boundingRect();
+        gameOverText->setPos(sceneRect.width()/2 - textRect.width()/2, sceneRect.height()/2 - textRect.height()/2);
+    }
+
+    addItem(gameOverText);
 }
 
 void MyScene::spawnEnemies() {
     static int frameCount = 0;
     ++frameCount;
 
-    if (frameCount % 150 == 0) {
+    if (frameCount % 300 == 0) {
         Enemy* enemy = new Enemy(player, 32);
         addItem(enemy);
-    }
-    if (frameCount % 500 == 0) {
-        Golem* golem = new Golem(player, 128);
-        connect(golem, &Golem::golemDefeated, this, [this]() {
-            increaseScore(20);
-        });
-
-        addItem(golem);
-        int tileX = QRandomGenerator::global()->bounded(16);
-        int tileY = QRandomGenerator::global()->bounded(16);
-        golem->setPos(tileX * tileSize, tileY * tileSize);
     }
 }
 
 void MyScene::updateHealthBar() {
+    if (!player || !healthBarFront || !healthText) return;
     int hp = player->getHp();
     int maxHp = 100;
     int fullWidth = 100;
@@ -367,37 +361,131 @@ void MyScene::updateMovement() {
 
 
 void MyScene::resetGame() {
-    clear();
+    // Arrêter timers
+    if (gameTimer) gameTimer->stop();
+    if (movementTimer) movementTimer->stop();
 
-    if (replayButton) {
-        replayButton->hide();
-        replayButton->deleteLater();
-        replayButton = nullptr;
-    }
-    if (quitButton) {
-        quitButton->hide();
-        quitButton->deleteLater();
-        quitButton = nullptr;
-    }
+    clear();  // Efface tous les items de la scène (attention aux objets non supprimés manuellement !)
 
-    player = new Player();
-    addItem(player);
-    player->setPos(1 * tileSize, 1 * tileSize);
-    connect(player, &Player::gameOver, this, &MyScene::handleGameOver);
+    // Ensuite supprime les pointeurs restants
+    delete player; player = nullptr;
+    delete healthBarBack; healthBarBack = nullptr;
+    delete healthBarFront; healthBarFront = nullptr;
+    delete healthText; healthText = nullptr;
+    delete weaponText; weaponText = nullptr;
+    delete scoreText; scoreText = nullptr;
+    delete replayProxy; replayProxy = nullptr;
+    delete replayButton; replayButton = nullptr;
+    
+    score = 0;
+    load();
 
-    gameTimer->start();
-    spawnTimer->start();
-
-    for (int i = 0; i < 3; ++i) {
-        spawnEnemies();
-    }
+    if (gameTimer) gameTimer->start(16);
+    if (movementTimer) movementTimer->start(16);
 }
+
 
 void MyScene::increaseScore(int amount) {
     score += amount;
     if (scoreText) {
         scoreText->setPlainText(QString("Score : %1").arg(score));
     }
+}
+
+void MyScene::showGameOverScreen() {
+    // Stopper timers
+    if (gameTimer) gameTimer->stop();
+    if (movementTimer) movementTimer->stop();
+
+    // Afficher texte Game Over
+    if (!gameOverText) {
+        gameOverText = new QGraphicsTextItem("GAME OVER");
+        gameOverText->setDefaultTextColor(Qt::red);
+        gameOverText->setFont(QFont("Arial", 40, QFont::Bold));
+        gameOverText->setZValue(10);
+        addItem(gameOverText);
+    }
+
+    // Centrer texte
+    if (view) {
+        QPointF center = view->mapToScene(view->viewport()->rect().center());
+        QRectF rect = gameOverText->boundingRect();
+        gameOverText->setPos(center.x() - rect.width() / 2, center.y() - rect.height() / 2 - 50);
+    }
+
+    // Bouton Rejouer
+    if (!replayButton) {
+        replayButton = new QPushButton("Rejouer");
+        replayButton->setFixedSize(120, 50);
+
+        replayProxy = addWidget(replayButton);
+        replayProxy->setZValue(11);
+
+        // Centrer bouton sous le texte
+        if (view) {
+            QPointF center = view->mapToScene(view->viewport()->rect().center());
+            replayProxy->setPos(center.x() - replayButton->width() / 2, center.y() + 10);
+        }
+
+        // Connexion du bouton pour reset
+        connect(replayButton, &QPushButton::clicked, this, &MyScene::resetGame);
+    }
+
+    // Désactiver interactions joueur (optionnel)
+    if (player) player->setEnabled(false);
+}
+
+void MyScene::initHud()
+{
+    int barWidth = 100;
+    int barHeight = 12;
+    int barX = 10;
+    int barY = 10;
+
+    // --- Barre de fond (gris foncé, avec bord blanc)
+    healthBarBack = new QGraphicsRectItem(0, 0, barWidth, barHeight);
+    healthBarBack->setBrush(QColor(50, 50, 50));
+    healthBarBack->setPen(QPen(Qt::white));
+    healthBarBack->setZValue(2);
+    healthBarBack->setPos(barX, barY);
+    addItem(healthBarBack);
+
+    // --- Barre de vie (rouge, avant-plan)
+    healthBarFront = new QGraphicsRectItem(0, 0, barWidth, barHeight);
+    healthBarFront->setBrush(Qt::red);
+    healthBarFront->setPen(Qt::NoPen);
+    healthBarFront->setZValue(3);
+    healthBarFront->setPos(barX, barY);
+    addItem(healthBarFront);
+
+    // --- Texte HP
+    QString hpText = player ? QString("HP : %1 / %2")
+            .arg(player->getHp())
+            .arg(100)
+                            : "HP : ?";
+    healthText = new QGraphicsTextItem(hpText);
+    healthText->setDefaultTextColor(Qt::white);
+    healthText->setFont(QFont("Consolas", 10, QFont::Bold));
+    healthText->setZValue(4);
+    healthText->setPos(barX + barWidth + 5, barY - 2); // À droite de la barre
+    addItem(healthText);
+
+    // --- Texte Arme
+    QString weaponName = player ? player->getCurrentWeaponName() : "Aucune";
+    weaponText = new QGraphicsTextItem("Arme : " + weaponName);
+    weaponText->setDefaultTextColor(Qt::white);
+    weaponText->setFont(QFont("Consolas", 10, QFont::Bold));
+    weaponText->setZValue(4);
+    weaponText->setPos(barX, barY + barHeight + 10); // Sous la barre
+    addItem(weaponText);
+
+    // --- Texte Score
+    scoreText = new QGraphicsTextItem("Score : 0");
+    scoreText->setDefaultTextColor(Qt::yellow);
+    scoreText->setFont(QFont("Consolas", 10, QFont::Bold));
+    scoreText->setZValue(4);
+    scoreText->setPos(barX, barY + barHeight + 30); // Sous l'arme
+    addItem(scoreText);
 }
 
 

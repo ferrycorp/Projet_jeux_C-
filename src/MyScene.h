@@ -21,6 +21,10 @@
 #include <QXmlStreamReader>
 #include <cstdlib>   // for rand()
 #include <ctime>
+#include <QApplication>
+#include <QGraphicsProxyWidget>
+#include <QRandomGenerator>
+
 
 struct TileAnimation {
     QList<QPixmap> frames;
@@ -58,6 +62,7 @@ public:
     void setMapPath(const QString& path) {
         selectedMapPath = path;
     }
+    QString getMapPath() const { return selectedMapPath; }
     void increaseScore(int amount);
 
 protected:
@@ -74,8 +79,9 @@ private slots:
 
 
 private:
+    QGraphicsTextItem* gameOverText = nullptr;
     QPushButton* replayButton = nullptr;
-    QPushButton* quitButton = nullptr;
+    QGraphicsProxyWidget* replayProxy = nullptr;
     Player* player;
     Enemy* enemy;
     QTimer* gameTimer;
@@ -88,10 +94,6 @@ private:
 
     QList<QPointer<Golem>> golems; // Au lieu de QList<Golem*>
 
-
-    void spawnGolem();
-    void onGolemDefeated(Golem* golem);
-    void clearAllGolems();
 
         void loadMapFromJson(const QString& jsonPath, const QMap<int, QPixmap>& tilesetMap, int tileWidth, int tileHeight);
     void addTileset(QMap<int, QPixmap>& tilesetMap,const QString& imagePath,int firstGid,int tileWidth,int tileHeight,int tileCount);
@@ -118,9 +120,13 @@ private:
     QGraphicsTextItem* scoreText = nullptr;
     int score = 0;  // Valeur initiale du score
 
+    void showGameOverScreen();
+    void initHud();
 
 
 
+signals:
+    void gameOver();
 
 
 };
