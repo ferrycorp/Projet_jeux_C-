@@ -89,18 +89,27 @@ void MyScene::load() {
         addItem(enemy);
     }
 
-    Boss* boss = new Boss(player, 256);
-    addItem(boss);
-    boss ->setPos(10 * tileSize, 10 * tileSize);
+    Golem* golem = new Golem(player, 128);
+    connect(golem, &Golem::golemDefeated, this, [this]() {
+        increaseScore(20);
+    });
 
-    Golem* golem = new Golem(player, tileSize);
     addItem(golem);
-    golem->setPos(12 * tileSize, 12 * tileSize); // Correction ici
+    golem->setPos(15 * tileSize, 13 * tileSize);
+    Golem* golem2 = new Golem(player, 128);
+    connect(golem2, &Golem::golemDefeated, this, [this]() {
+        increaseScore(20);
+    });
+    addItem(golem2);
+    golem2->setPos(12 * tileSize, 12 * tileSize);
+
+
+
+
+
     QGraphicsPixmapItem* projectile = new QGraphicsPixmapItem();
     projectile->setData(0, "player_projectile");
     addItem(projectile);
-
-// Positionne le boss quelque part sur la carte (ex : en bas à droite)
 
 
     gameTimer = new QTimer(this);

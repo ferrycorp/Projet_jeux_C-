@@ -2,22 +2,39 @@
 #define PROJECTILE_H
 
 #include <QGraphicsPixmapItem>
-#include <QTimer>
 #include <QObject>
+#include <QTimer>
+#include <QPointF>
+#include <QPainterPath>
+#include "Golem.h"
 
-class Projectile : public QObject, public QGraphicsPixmapItem {
-    Q_OBJECT
+// Forward declarations
+class Enemy;
+class Golem;
+
+class Projectile : public QObject, public QGraphicsPixmapItem
+{
+Q_OBJECT
 
 public:
-    Projectile(qreal angleDeg, int tileSize, QGraphicsItem* parent = nullptr);
+    explicit Projectile(qreal angleDeg, int tileSize, QGraphicsItem* parent = nullptr);
+    ~Projectile();
 
-    private slots:
-        void moveForward();
+    // Redéfinition des méthodes virtuelles
+    QRectF boundingRect() const override;
+    QPainterPath shape() const override;
+
+private slots:
+    void moveForward();
+    void destroySelf();
 
 private:
+    void checkCollisions();
+
     QTimer* moveTimer;
+    QTimer* lifetimeTimer;
     QPointF direction;
-    int speed;
+    qreal speed;
 };
 
 #endif // PROJECTILE_H

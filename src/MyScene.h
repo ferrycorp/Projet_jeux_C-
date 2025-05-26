@@ -12,13 +12,15 @@
 #include "projectile.h"
 #include <QDebug>
 #include <vector>
-#include <cstdlib>  // pour rand()
+#include <cstdlib>
 #include <ctime>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QXmlStreamReader>
+#include <cstdlib>   // for rand()
+#include <ctime>
 
 struct TileAnimation {
     QList<QPixmap> frames;
@@ -71,7 +73,7 @@ private slots:
 
 
 
-        private:
+private:
     QPushButton* replayButton = nullptr;
     QPushButton* quitButton = nullptr;
     Player* player;
@@ -82,9 +84,16 @@ private slots:
     QString selectedMapPath;
 
     QTimer* movementTimer;
+    QTimer* golemSpawnTimer;
+
+    QList<QPointer<Golem>> golems; // Au lieu de QList<Golem*>
 
 
-    void loadMapFromJson(const QString& jsonPath, const QMap<int, QPixmap>& tilesetMap, int tileWidth, int tileHeight);
+    void spawnGolem();
+    void onGolemDefeated(Golem* golem);
+    void clearAllGolems();
+
+        void loadMapFromJson(const QString& jsonPath, const QMap<int, QPixmap>& tilesetMap, int tileWidth, int tileHeight);
     void addTileset(QMap<int, QPixmap>& tilesetMap,const QString& imagePath,int firstGid,int tileWidth,int tileHeight,int tileCount);
 
     void addTilesetsFromJson(const QString& jsonPath, QMap<int, QPixmap>& tilesetMap, int tileWidth, int tileHeight);

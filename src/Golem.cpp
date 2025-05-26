@@ -1,5 +1,8 @@
 #include "Golem.h"
-
+#include <QGraphicsPixmapItem>
+#include <QTimer>
+#include <QObject>
+#include <QVector>
 
 Golem::Golem(Player* targetPlayer, int spriteSize, QGraphicsItem* parent)
         : QGraphicsPixmapItem(parent),
@@ -13,8 +16,9 @@ Golem::Golem(Player* targetPlayer, int spriteSize, QGraphicsItem* parent)
           isFlashing(false),
           canTakeDamage(true),
           attackCooldown(0),
-          attackCounter(0)
-{
+          attackCounter(0),
+          isDying(false) {  // ← Ajout de l'initialisation
+
     // Initialisation des timers
     animationTimer = new QTimer(this);
     connect(animationTimer, &QTimer::timeout, this, &Golem::updateAnimation);
@@ -27,47 +31,101 @@ Golem::Golem(Player* targetPlayer, int spriteSize, QGraphicsItem* parent)
     projectileTimer = new QTimer(this);
     connect(projectileTimer, &QTimer::timeout, this, &Golem::fireProjectile);
 
-    chargeTimer = new QTimer(this);
-    chargeTimer->setSingleShot(true);
-    connect(chargeTimer, &QTimer::timeout, this, &Golem::performChargeAttack);
-
     damageTimer = new QTimer(this);
     damageTimer->setSingleShot(true);
     connect(damageTimer, &QTimer::timeout, this, &Golem::flashDamage);
 
     collisionTimer = new QTimer(this);
     connect(collisionTimer, &QTimer::timeout, this, &Golem::checkCollisions);
-    collisionTimer->start(50);  // Vérification fréquente des collisions
+    collisionTimer->start(16);  // ~60 FPS pour une détection fluide
 
     // Chargement des animations depuis la sprite sheet
     loadAnimations();
+    if (!idleFrames.isEmpty()) {
+        setPixmap(idleFrames[0]);
+        setTransformationMode(Qt::SmoothTransformation);
 
-    // Définir le pivot au centre du sprite pour les rotations
-    setTransformOriginPoint(spriteSize / 2, spriteSize / 2);
+        // Appliquer la mise à l'échelle pour adapter à spriteSize souhaité
+        qreal scaleFactor = static_cast<qreal>(spriteSize) / idleFrames[0].width();
+        setScale(scaleFactor);
 
-    // Définir la hitbox (zone de collision)
-    setOffset(-spriteSize / 2, -spriteSize / 2);
+        animationFrames = idleFrames;
+    }
+
+    // Configuration de la hitbox pour les collisions
+    setupCollisionBox();
+
     setFlag(QGraphicsItem::ItemIsFocusable);
     setZValue(2);
-    setShapeMode(QGraphicsPixmapItem::BoundingRectShape); // pour simplifier les collisions
 }
 
 Golem::~Golem() {
-    // Nettoyage des timers
-    animationTimer->stop();
-    actionTimer->stop();
-    projectileTimer->stop();
-    chargeTimer->stop();
-    damageTimer->stop();
-    collisionTimer->stop();
+    // ✅ Nettoyage sécurisé des timers
+    if (animationTimer) {
+        animationTimer->stop();
+        animationTimer->deleteLater();
+    }
+    if (actionTimer) {
+        actionTimer->stop();
+        actionTimer->deleteLater();
+    }
+    if (projectileTimer) {
+        projectileTimer->stop();
+        projectileTimer->deleteLater();
+    }
+    if (damageTimer) {
+        damageTimer->stop();
+        damageTimer->deleteLater();
+    }
+    if (collisionTimer) {
+        collisionTimer->stop();
+        collisionTimer->deleteLater();
+    }
 
-    delete animationTimer;
-    delete actionTimer;
-    delete projectileTimer;
-    delete chargeTimer;
-    delete damageTimer;
-    delete collisionTimer;
+    qDebug() << "Golem détruit proprement";
 }
+
+void Golem::setupCollisionBox() {
+    // Créer une hitbox plus précise (plus petite que le sprite complet)
+    int hitboxSize = spriteSize * 0.7; // 70% de la taille du sprite
+    int offset = (spriteSize - hitboxSize) / 2;
+
+    hitboxRect = QRectF(offset, offset, hitboxSize, hitboxSize);
+}
+
+QRectF Golem::boundingRect() const {
+    return QRectF(0, 0, spriteSize, spriteSize);
+}
+
+QPainterPath Golem::shape() const {
+    QPainterPath path;
+    // Utiliser la hitbox pour la détection de collision
+    path.addEllipse(hitboxRect); // Forme circulaire pour des collisions plus naturelles
+    return path;
+}
+
+void Golem::updateAnimation() {
+    if (animationFrames.isEmpty() || isDying) return;
+
+    if (currentState == DYING) {
+        if (currentFrame < animationFrames.size()) {
+            setPixmap(animationFrames[currentFrame]);
+            currentFrame++;
+
+            // Quand l'animation de mort est terminée
+            if (currentFrame >= animationFrames.size()) {
+                // ✅ Arrêter l'animation et marquer pour suppression
+                animationTimer->stop();
+                return;
+            }
+        }
+        return; // Ne boucle pas l'animation de mort
+    }
+
+    currentFrame = (currentFrame + 1) % animationFrames.size();
+    setPixmap(animationFrames[currentFrame]);
+}
+
 QVector<QPixmap> Golem::loadAnimationFrames(const QString& folder, const QString& baseName, int frameCount) {
     QVector<QPixmap> frames;
 
@@ -82,159 +140,39 @@ QVector<QPixmap> Golem::loadAnimationFrames(const QString& folder, const QString
             frames.append(frame);
         } else {
             qDebug() << "Erreur de chargement:" << path;
+            // Créer un sprite de fallback si l'image n'existe pas
+            QPixmap fallback(spriteSize, spriteSize);
+            fallback.fill(Qt::blue);
+            frames.append(fallback);
         }
     }
 
     return frames;
 }
 
-void Golem::loadAnimations() {
-    // Chargement de la sprite sheet
-    idleFrames = loadAnimationFrames("idle", "idle_golem", 4);  // charge 10 frames d'idle
-    //walkFrames = loadAnimationFrames("walk", "walk_golem", 8);   // charge 8 frames de marche
-   // attackFrames = loadAnimationFrames("attack", "attack_golem", 6); // etc.
-
-    if (idleFrames.isEmpty())
-        qDebug() << "Erreur : frames 'idle' non chargées";
-}
-
-
-
-
-void Golem::updateAnimation() {
-    if (animationFrames.isEmpty()) return;
-
-    currentFrame = (currentFrame + 1) % animationFrames.size();
-    setPixmap(animationFrames[currentFrame]);
-}
-
-void Golem::changeState(GolemState newState) {
-    if (currentState == newState) return;
-
-    currentState = newState;
-    currentFrame = 0;
-
-    // Définir la ligne d'animation en fonction de l'état
-    switch (newState) {
-        case IDLE:
-            animationFrames = idleFrames;
-            animationRow = 0;
-            speed = BASE_SPEED;
-            break;
-        case WALKING:
-            animationRow = 1; // Deuxième ligne = marche
-            speed = BASE_SPEED;
-            break;
-        case FIRING:
-            animationRow = 2; // Troisième ligne = tir
-            break;
-        case CHARGING:
-            animationRow = 3; // Quatrième ligne = charge
-            speed = CHARGE_SPEED;
-            break;
-        case HIT:
-            animationRow = 4; // Cinquième ligne = touché
-            break;
-        case DYING:
-            animationRow = 5; // Sixième ligne = mort
-            animationTimer->setInterval(150); // Animation plus lente pour la mort
-            actionTimer->stop();
-            projectileTimer->stop();
-            chargeTimer->stop();
-            collisionTimer->stop();
-            break;
-        default:
-            animationFrames = idleFrames; // Valeur par défaut
-            break;
-    }
-
-    // Vérifier que l'animation existe
-    if (animationRow >= animations.size()) {
-        animationRow = 0;
-    }
-}
-
-void Golem::performAction() {
-    if (currentState == DYING) return;
-
-    if (!player) return;
-
-    // Calculer la distance au joueur
-    QPointF playerPos = player->pos();
-    QPointF bossPos = pos();
-    QPointF diff = playerPos - bossPos;
-    double distance = std::sqrt(diff.x() * diff.x() + diff.y() * diff.y());
-
-    // Décider de l'action en fonction de la distance et d'autres facteurs
-    if (attackCooldown > 0) {
-        attackCooldown -= ACTION_INTERVAL;
-    }
-
-    if (currentState == CHARGING) {
-        // Déjà en train de charger, ne rien faire de plus
-        return;
-    }
-
-    if (distance > DETECTION_RANGE) {
-        // Joueur hors de portée, passer en mode IDLE
-        changeState(IDLE);
-        return;
-    }
-
-    // Orienter le boss vers le joueur
-    rotateTowardsPlayer();
-
-    if (distance <= ATTACK_RANGE && attackCooldown <= 0) {
-        // Joueur à portée d'attaque
-        int attackChoice = std::rand() % 10; // Utiliser std::rand() à la place de QRandomGenerator
-
-        if (attackChoice < 3 && !projectileTimer->isActive()) {
-            // 30% de chance de tirer
-            changeState(FIRING);
-            projectileTimer->start(500); // Commencer à tirer après 500ms
-            attackCooldown = PROJECTILE_COOLDOWN;
-        }
-        else if (attackChoice < 6 && !chargeTimer->isActive()) {
-            // 30% de chance de charger
-            startChargeAttack();
-            attackCooldown = CHARGE_COOLDOWN;
-        }
-        else {
-            // 40% de chance de continuer à se déplacer
-            changeState(WALKING);
-            moveTowardsPlayer(speed);
-        }
-    }
-    else {
-        // Joueur trop loin pour attaquer, se rapprocher
-        changeState(WALKING);
-        moveTowardsPlayer(speed);
-    }
-}
-
-
 void Golem::fireProjectile() {
-    if (!player || !scene()) return;
+    if (!player || !scene() || isDying) return;
 
-    // Créer un projectile
-    QPointF bossPos = pos();
-    QPointF playerPos = player->pos();
-    QPointF diff = playerPos - bossPos;
+    // Position du centre du golem pour le spawn du projectile
+    QPointF bossCenter = pos() + QPointF(spriteSize/2, spriteSize/2);
+    QPointF playerCenter = player->pos() + QPointF(player->boundingRect().width()/2, player->boundingRect().height()/2);
+    QPointF diff = playerCenter - bossCenter;
 
     // Calculer l'angle vers le joueur
     double angle = std::atan2(diff.y(), diff.x()) * 180 / M_PI;
 
-    // Créer le projectile (ajustez selon votre classe Projectile)
+    // Créer le projectile
     Projectile* proj = new Projectile(angle, spriteSize/2);
-    proj->setPos(bossPos);
-    proj->setData(0, "boss_projectile"); // Pour identifier ce projectile comme venant du boss
+
+    // Positionner le projectile au centre du golem
+    proj->setPos(bossCenter);
+    proj->setData(0, "boss_projectile");
+    proj->setZValue(1); // S'assurer qu'il est visible
 
     scene()->addItem(proj);
 
     // Arrêter le tir après 3 projectiles
-    static int shotCount = 0;
     shotCount++;
-
     if (shotCount >= 3) {
         shotCount = 0;
         projectileTimer->stop();
@@ -242,23 +180,227 @@ void Golem::fireProjectile() {
     }
 }
 
+void Golem::checkCollisions() {
+    if (!scene() || isDying) return;
 
+    // Vérification plus robuste des collisions
+    QList<QGraphicsItem*> allItems = scene()->items();
+
+    for (QGraphicsItem* item : allItems) {
+        if (!item || item == this) continue;
+
+        QVariant data = item->data(0);
+        if (data.isValid() && data.toString() == "player_projectile") {
+            // Calculer la distance entre le projectile et le centre du golem
+            QPointF projectileCenter = item->pos() + QPointF(item->boundingRect().width()/2, item->boundingRect().height()/2);
+            QPointF golemCenter = pos() + QPointF(spriteSize/2, spriteSize/2);
+            QPointF diff = projectileCenter - golemCenter;
+            double distance = std::sqrt(diff.x() * diff.x() + diff.y() * diff.y());
+
+            // Rayon de collision
+            double collisionRadius = (spriteSize * 0.6) / 2; // Un peu plus large pour être plus permissif
+
+            if (distance <= collisionRadius) {
+                handleProjectileCollision(item);
+                break; // Une seule collision par frame
+            }
+        }
+    }
+}
+
+void Golem::handleProjectileCollision(QGraphicsItem* projectile) {
+    if (!projectile || !scene() || isDying) return;
+
+    takeDamage(10);
+
+    // Supprimer le projectile de manière sécurisée
+    scene()->removeItem(projectile);
+    //projectile->deleteLater();
+
+    qDebug() << "Collision détectée ! Golem touché par projectile.";
+}
+
+void Golem::takeDamage(int amount) {
+    if (!canTakeDamage || isDying) return;
+
+    health -= amount;
+    qDebug() << "Golem prend" << amount << "dégâts. HP restant:" << health;
+
+    // Effet de clignotement rouge
+    isFlashing = true;
+    canTakeDamage = false;
+
+    auto *effect = new QGraphicsColorizeEffect;
+    effect->setColor(Qt::red);
+    effect->setStrength(0.7);
+    setGraphicsEffect(effect);
+    damageTimer->start(200);
+
+    if (health <= 0 && !isDying) {
+        isDying = true;
+        changeState(DYING);
+
+        // ✅ Arrêter tous les timers AVANT d'émettre le signal
+        if (animationTimer) animationTimer->stop();
+        if (actionTimer) actionTimer->stop();
+        if (projectileTimer) projectileTimer->stop();
+        if (damageTimer) damageTimer->stop();
+        if (collisionTimer) collisionTimer->stop();
+
+        // ✅ Désactiver l'item pour éviter les interactions
+        setEnabled(false);
+
+        // ✅ Émettre le signal APRÈS avoir sécurisé l'objet
+        emit golemDefeated();
+
+        // ✅ Programme la destruction après l'animation de mort
+        int animationDuration = deathFrames.size() * 150; // 150ms par frame
+        if (animationDuration == 0) animationDuration = 1000;
+
+        // ✅ Timer unique pour la destruction - pas de lambda avec [this]
+        QTimer* destructionTimer = new QTimer();
+        destructionTimer->setSingleShot(true);
+
+        connect(destructionTimer, &QTimer::timeout, [this, destructionTimer]() {
+            destructionTimer->deleteLater();
+            if (scene()) {
+                scene()->removeItem(this);
+            }
+            this->deleteLater();
+        });
+
+        destructionTimer->start(animationDuration);
+
+        // ✅ Redémarrer uniquement l'animation de mort
+        if (animationTimer) {
+            disconnect(animationTimer, nullptr, this, nullptr);
+            connect(animationTimer, &QTimer::timeout, this, &Golem::updateAnimation);
+            animationTimer->start(150);
+        }
+    }
+}
+
+void Golem::flashDamage() {
+    if (isDying) return; // ✅ Éviter les effets pendant la mort
+
+    isFlashing = false;
+    canTakeDamage = true;
+    setGraphicsEffect(nullptr);
+}
 
 void Golem::moveTowardsPlayer(double moveSpeed) {
-    if (!player || !scene()) return;
+    if (!player || !scene() || isDying) return;
 
     QPointF moveVector = calculateMovementVector(moveSpeed);
     QPointF newPos = pos() + moveVector;
 
-    // Vérifier les limites de la scène
+    // Vérifier les limites de la scène avec une marge
     QRectF bounds = scene()->sceneRect();
-    if (bounds.contains(QRectF(newPos, QSizeF(spriteSize, spriteSize)))) {
+    QRectF golemRect(newPos, QSizeF(spriteSize, spriteSize));
+
+    // Ajouter une marge pour éviter que le golem sorte complètement
+    bounds.adjust(10, 10, -10, -10);
+
+    if (bounds.contains(golemRect)) {
         setPos(newPos);
     }
 }
 
+void Golem::changeState(GolemState newState) {
+    if (currentState == newState || isDying) return;
+
+    currentState = newState;
+    currentFrame = 0;
+
+    switch (newState) {
+        case IDLE:
+            animationFrames = idleFrames;
+            animationRow = 0;
+            speed = BASE_SPEED;
+            break;
+        case WALKING:
+            animationRow = 1;
+            speed = BASE_SPEED;
+            break;
+        case FIRING:
+            animationRow = 2;
+            break;
+        case CHARGING:
+            animationRow = 3;
+            speed = CHARGE_SPEED;
+            break;
+        case HIT:
+            animationRow = 4;
+            break;
+        case DYING:
+            animationFrames = deathFrames;
+            currentFrame = 0;
+            break;
+        default:
+            animationFrames = idleFrames;
+            break;
+    }
+}
+
+void Golem::loadAnimations() {
+    idleFrames = loadAnimationFrames("idle", "idle_golem", 4);
+    deathFrames = loadAnimationFrames("death", "death_golem", 14);
+    qDebug() << "Frames de mort chargées :" << deathFrames.size();
+
+    if (idleFrames.isEmpty()) {
+        qDebug() << "Erreur : frames 'idle' non chargées - création de sprites de fallback";
+        // Créer des sprites de fallback
+        for (int i = 0; i < 4; ++i) {
+            QPixmap fallback(spriteSize, spriteSize);
+            fallback.fill(Qt::darkBlue);
+            idleFrames.append(fallback);
+        }
+    }
+}
+
+void Golem::performAction() {
+    if (isDying || !player) return; // ✅ Vérifier isDying en premier
+
+    // Calculer la distance au joueur
+    QPointF playerPos = player->pos();
+    QPointF bossPos = pos();
+    QPointF diff = playerPos - bossPos;
+    double distance = std::sqrt(diff.x() * diff.x() + diff.y() * diff.y());
+
+    if (attackCooldown > 0) {
+        attackCooldown -= ACTION_INTERVAL;
+    }
+
+    if (currentState == CHARGING) {
+        return;
+    }
+
+    if (distance > DETECTION_RANGE) {
+        changeState(IDLE);
+        return;
+    }
+
+    if (distance <= ATTACK_RANGE && attackCooldown <= 0) {
+        int attackChoice = std::rand() % 10;
+
+        if (attackChoice < 3 && !projectileTimer->isActive()) {
+            changeState(FIRING);
+            projectileTimer->start(500);
+            attackCooldown = PROJECTILE_COOLDOWN;
+        }
+        else {
+            changeState(WALKING);
+            moveTowardsPlayer(speed);
+        }
+    }
+    else {
+        changeState(WALKING);
+        moveTowardsPlayer(speed);
+    }
+}
+
 QPointF Golem::calculateMovementVector(double moveSpeed) {
-    if (!player) return QPointF(0, 0);
+    if (!player || isDying) return QPointF(0, 0);
 
     QPointF playerPos = player->pos();
     QPointF bossPos = pos();
@@ -274,89 +416,7 @@ QPointF Golem::calculateMovementVector(double moveSpeed) {
     return QPointF(diff.x() * moveSpeed, diff.y() * moveSpeed);
 }
 
-void Golem::rotateTowardsPlayer() {
-    if (!player) return;
-
-    QPointF playerPos = player->pos();
-    QPointF bossPos = pos();
-    QPointF diff = playerPos - bossPos;
-
-    // Calculer l'angle en degrés
-    double angle = std::atan2(diff.y(), diff.x()) * 180 / M_PI;
-
-    // Appliquer la rotation au sprite
-    setRotation(angle);
-}
-
-void Golem::takeDamage(int amount) {
-    if (!canTakeDamage || currentState == DYING) return;
-
-    health -= amount;
-    qDebug() << "Boss prend" << amount << "dégâts. HP restant:" << health;
-
-    // Clignotement rouge
-    isFlashing = true;
-    canTakeDamage = false;
-    damageTimer->start(200);
-
-    if (health <= 0) {
-        // Boss vaincu
-        changeState(DYING);
-        // Émettre le signal de défaite du boss
-        emit golemDefeated();
-
-        // Désactiver les collisions
-        setEnabled(false);
-
-        // Générer des récompenses
-        dropLoot();
-    }
-    else {
-        // Changer brièvement l'état à HIT
-        GolemState previousState = currentState;
-        changeState(HIT);
-
-        // Revenir à l'état précédent après un court délai
-        QTimer::singleShot(300, this, [this, previousState]() {
-            if (currentState == HIT) {
-                changeState(previousState);
-            }
-        });
-    }
-}
-
-void Golem::flashDamage() {
-    isFlashing = false;
-    canTakeDamage = true;
-    updateAnimation(); // Rafraîchir l'animation pour enlever l'effet rouge
-}
-
-void Golem::checkCollisions() {
-    if (!scene() || currentState == DYING) return;
-
-    QList<QGraphicsItem*> collidingItems = scene()->collidingItems(this);
-
-    for (QGraphicsItem* item : collidingItems) {
-        // Vérifier si l'item est un projectile du joueur
-        if (item->data(0).toString() == "player_projectile") {
-            takeDamage(10);
-            scene()->removeItem(item);
-            delete item;
-        }
-
-    }
-}
-
-void Golem::update() {
-    // Cette méthode peut être appelée à chaque frame du jeu
-    checkCollisions();
-}
-
 void Golem::dropLoot() {
-    // Fonction à implémenter selon votre système de loot
-    qDebug() << "Le boss a été vaincu et a laissé tomber du loot";
-
-    // Exemple: créer un item de récompense
-    // Item* reward = new Item("upgrade", pos());
-    // scene()->addItem(reward);
+    qDebug() << "Le golem a été vaincu";
+    // Implémenter selon votre système de loot
 }
